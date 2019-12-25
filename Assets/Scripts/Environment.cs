@@ -119,6 +119,20 @@ public class Environment : MonoBehaviour
             {
                 EnvironmentTile tile = mMap[x][y];
                 tile.Connections = new List<EnvironmentTile>();
+
+                //8-Way Directional Connections
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        if (InRange(x + i, y + j))
+                        {
+                            tile.Connections.Add(mMap[x + i][y + j]);
+                        }
+                    }
+                }
+
+                /*
                 if (x > 0)
                 {
                     tile.Connections.Add(mMap[x - 1][y]);
@@ -138,8 +152,14 @@ public class Environment : MonoBehaviour
                 {
                     tile.Connections.Add(mMap[x][y + 1]);
                 }
+                */
             }
         }
+    }
+
+    bool InRange(float x, float y)
+    {
+        return x < Size.x && x >= 0 && y < Size.y && y >= 0;
     }
 
     private float Distance(EnvironmentTile a, EnvironmentTile b)

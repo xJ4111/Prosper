@@ -7,6 +7,7 @@ public class Character : MonoBehaviour
     [SerializeField] private float SingleNodeMoveTime = 0.5f;
 
     public EnvironmentTile CurrentPosition { get; set; }
+    public bool Moving;
 
     private IEnumerator DoMove(Vector3 position, Vector3 destination)
     {
@@ -23,6 +24,9 @@ public class Character : MonoBehaviour
                 t += Time.deltaTime;
                 p = Vector3.Lerp(position, destination, t / SingleNodeMoveTime);
                 transform.position = p;
+
+                Moving = transform.position != CurrentPosition.Position;
+
                 yield return null;
             }
         }
@@ -33,13 +37,10 @@ public class Character : MonoBehaviour
         // Move through each tile in the given route
         if (route != null)
         {
-            Vector3 position = CurrentPosition.Position;
             for (int count = 0; count < route.Count; ++count)
             {
-                Vector3 next = route[count].Position;
-                yield return DoMove(position, next);
                 CurrentPosition = route[count];
-                position = next;
+                yield return DoMove(transform.position, CurrentPosition.Position);
             }
         }
     }

@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 
 public class Game : MonoBehaviour
 {
+    public bool WaitForMoving = true;
+
     [SerializeField] private Camera MainCamera;
     [SerializeField] private Character Character;
     [SerializeField] private Canvas Menu;
@@ -17,11 +19,15 @@ public class Game : MonoBehaviour
 
     private readonly int NumberOfRaycastHits = 1;
 
+    EnvironmentTile tile;
+    List<EnvironmentTile> route;
+
     void Start()
     {
         mRaycastHits = new RaycastHit[NumberOfRaycastHits];
         mMap = GetComponentInChildren<Environment>();
-        mCharacter = Instantiate(Character, transform); 
+        mCharacter = Instantiate(Character, transform);
+        WaitForMoving = true;
         ShowMenu(true);
     }
 
@@ -33,15 +39,28 @@ public class Game : MonoBehaviour
         {
             Ray screenClick = MainCamera.ScreenPointToRay(Input.mousePosition);
             int hits = Physics.RaycastNonAlloc(screenClick, mRaycastHits);
-            if( hits > 0)
+
+            if ( hits > 0)
             {
-                EnvironmentTile tile = mRaycastHits[0].transform.GetComponent<EnvironmentTile>();
-                if (tile != null)
+                tile = mRaycastHits[0].transform.GetComponent<EnvironmentTile>();
+
+                if(!WaitForMoving)
                 {
-                    List<EnvironmentTile> route = mMap.Solve(mCharacter.CurrentPosition, tile);
-                    mCharacter.GoTo(route);
+                    if (tile != null)
+                    {
+                        route = mMap.Solve(mCharacter.CurrentPosition, tile);
+                        mCharacter.GoTo(route);
+                        tile = null;
+                    }
                 }
             }
+        }
+
+        if (WaitForMoving && tile != null && !mCharacter.Moving)
+        {
+            route = mMap.Solve(mCharacter.CurrentPosition, tile);
+            mCharacter.GoTo(route);
+            tile = null;
         }
     }
 
