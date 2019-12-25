@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Environment : MonoBehaviour
 {
+    public static Environment M;
+
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
     [SerializeField] private Vector2Int Size;
@@ -22,6 +24,15 @@ public class Environment : MonoBehaviour
 
     private void Awake()
     {
+        if (M == null)
+        {
+            M = this;
+        }
+        else if (M != this)
+        {
+            Destroy(this);
+        }
+
         mAll = new List<EnvironmentTile>();
         mToBeTested = new List<EnvironmentTile>();
     }
@@ -74,8 +85,20 @@ public class Environment : MonoBehaviour
         // Setup the map of the environment tiles according to the specified width and height
         // Generate tiles from the list of accessible and inaccessible prefabs using a random
         // and the specified accessible percentage
-        mMap = new EnvironmentTile[Size.x][];
 
+
+        mMap = new EnvironmentTile[Size.x][];
+        for (int x = 0; x < Size.x; ++x)
+        {
+            mMap[x] = new EnvironmentTile[Size.y];
+        }
+
+        Misc();
+        MakeBase();
+    }
+
+    private void Misc()
+    {
         int halfWidth = Size.x / 2;
         int halfHeight = Size.y / 2;
         Vector3 position = new Vector3( -(halfWidth * TileSize), 0.0f, -(halfHeight * TileSize) );
@@ -109,6 +132,54 @@ public class Environment : MonoBehaviour
             position.z = -(halfHeight * TileSize);
         }
     }
+    void MakeBase()
+    {
+        Vector2 centre = new Vector2(Size.x / 2, Size.y / 2);
+
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == 0 && j == 0)
+                    Spawn(PlayerBase.M.BaseTile, (int)centre.x + i, (int)centre.y + j).IsAccessible = false;
+                else
+                    Spawn(AccessibleTiles[0], (int)centre.x + i, (int)centre.y + j).IsAccessible = false;
+            }
+        }
+    }
+    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
+    {
+        Destroy(mMap[x][y].gameObject);
+        Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+        if (prefab.gameObject.activeInHierarchy)
+        {
+            prefab.transform.position = position;
+            mMap[x][y] = prefab;
+        }
+        else
+        {
+            mMap[x][y] = Instantiate(prefab, position, Quaternion.identity, transform);
+        }
+        return mMap[x][y];
+    }
+
+    public void Replace(EnvironmentTile tile)
+    {
+        for (int x = 0; x < Size.x; ++x)
+        {
+            for (int y = 0; y < Size.y; ++y)
+            {
+                if(mMap[x][y] == tile)
+                {
+                    Debug.Log("Found");
+                    Debug.Log(tile.gameObject.name);
+                    Destroy(tile.gameObject);
+                    Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+                    mMap[x][y] = Instantiate(AccessibleTiles[0], position, Quaternion.identity, transform);
+                }
+            }
+        }
+    }
 
     private void SetupConnections()
     {
@@ -131,28 +202,6 @@ public class Environment : MonoBehaviour
                         }
                     }
                 }
-
-                /*
-                if (x > 0)
-                {
-                    tile.Connections.Add(mMap[x - 1][y]);
-                }
-
-                if (x < Size.x - 1)
-                {
-                    tile.Connections.Add(mMap[x + 1][y]);
-                }
-
-                if (y > 0)
-                {
-                    tile.Connections.Add(mMap[x][y - 1]);
-                }
-
-                if (y < Size.y - 1)
-                {
-                    tile.Connections.Add(mMap[x][y + 1]);
-                }
-                */
             }
         }
     }
@@ -175,7 +224,7 @@ public class Environment : MonoBehaviour
         return result;
     }
 
-    private float Heuristic(EnvironmentTile a, EnvironmentTile b)
+    public float Heuristic(EnvironmentTile a, EnvironmentTile b)
     {
         // Use the locations of the node to estimate how close they are by line of sight
         // experiment here with better ways of estimating the distance. This is used  to
