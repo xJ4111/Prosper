@@ -19,8 +19,8 @@ public class UI : MonoBehaviour
     }
 
     [Header("Main Menu")]
-    [SerializeField] private Canvas Menu;
-    [SerializeField] private Canvas Hud;
+    [SerializeField] private GameObject Menu;
+    [SerializeField] private GameObject HUD;
 
     [Header("Interaction UI")]
     [SerializeField] private GameObject Interact;
@@ -30,8 +30,8 @@ public class UI : MonoBehaviour
 
     public void ToggleMenu(bool show)
     {
-        Menu.enabled = show;
-        Hud.enabled = !show;
+        Menu.SetActive(show);
+        HUD.SetActive(!show);
     }
 
     public void ToggleInteract(string Info, string Action)
