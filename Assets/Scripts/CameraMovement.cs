@@ -4,15 +4,31 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
+    public static CameraMovement M;
+    private void Awake()
+    {
+        if (M == null)
+        {
+            M = this;
+        }
+        else if (M != this)
+        {
+            Destroy(this);
+        }
+    }
+
+    public Camera Cam;
     private Transform CamTransform;
-    private Camera Cam;
     private Transform Pivot;
 
-    private float MoveSpeed = 1f;
-    private float RotSpeed = 1f;
-    private float BoostAmount = 1.5f;
+    [SerializeField] private float MoveSpeed = 5f;
+    [SerializeField] private float RotSpeed = 1f;
+    [SerializeField] private float BoostAmount = 1.5f;
+    [SerializeField] private bool Smooth;
+    [SerializeField] private float LerpSpeed = 10f;
+    private Vector3 TargetPos;
 
-    private float ZoomSpeed = 1f;
+    [SerializeField] private float ZoomSpeed = 1f;
     private float MinZoom, MaxZoom;
 
     // Start is called before the first frame update
@@ -22,8 +38,10 @@ public class CameraMovement : MonoBehaviour
         Cam = GetComponentInChildren<Camera>();
         CamTransform = Cam.GetComponent<Transform>();
 
+        TargetPos = Pivot.position;
+
         MinZoom = Cam.fieldOfView * 0.5f;
-        MaxZoom = Cam.fieldOfView * 1.5f;
+        MaxZoom = Cam.fieldOfView * 1.25f;
     }
 
     // Update is called once per frame
@@ -55,16 +73,25 @@ public class CameraMovement : MonoBehaviour
         {
             Move(Pivot.right);
         }
+
+        if(Smooth)
+            Pivot.position = Vector3.Lerp(Pivot.position, TargetPos, Time.deltaTime * LerpSpeed);
     }
     void Move(Vector3 dir)
     {
         if(!Input.GetKey(KeyCode.LeftShift))
         {
-            Pivot.transform.localPosition += dir * (MoveSpeed);
+            if (Smooth)
+                TargetPos += dir * (MoveSpeed);
+            else
+                Pivot.position += dir * (MoveSpeed);
         }
         else
         {
-            Pivot.transform.localPosition += dir * (MoveSpeed * BoostAmount);
+            if (Smooth)
+                TargetPos += dir * (MoveSpeed * BoostAmount);
+            else
+                Pivot.position += dir * (MoveSpeed * BoostAmount);
         }
     }
 

@@ -20,7 +20,7 @@ public class Environment : MonoBehaviour
     private const float TileSize = 10.0f;
     private const float TileHeight = 2.5f;
 
-    public EnvironmentTile Start { get; private set; }
+    public List<EnvironmentTile> StartPos;
 
     private void Awake()
     {
@@ -33,6 +33,7 @@ public class Environment : MonoBehaviour
             Destroy(this);
         }
 
+        StartPos = new List<EnvironmentTile>();
         mAll = new List<EnvironmentTile>();
         mToBeTested = new List<EnvironmentTile>();
     }
@@ -121,7 +122,7 @@ public class Environment : MonoBehaviour
 
                 if(start)
                 {
-                    Start = tile;
+                    //Start = tile;
                 }
 
                 position.z += TileSize;
@@ -135,32 +136,53 @@ public class Environment : MonoBehaviour
     void MakeBase()
     {
         Vector2 centre = new Vector2(Size.x / 2, Size.y / 2);
+        int x = (int)centre.x;
+        int y = (int)centre.y;
 
-        for (int i = -1; i <= 1; i++)
+        for (int i = -2; i <= 2; i++)
         {
-            for (int j = -1; j <= 1; j++)
+            for (int j = -2; j <= 2; j++)
             {
                 if (i == 0 && j == 0)
-                    Spawn(PlayerBase.M.BaseTile, (int)centre.x + i, (int)centre.y + j).IsAccessible = false;
+                    Spawn(PlayerBase.M.BaseTile, x + i, y + j).IsAccessible = false;
+                else if(i <= 1 && i >= -1 && j <= 1 && j >= -1)
+                    Spawn(AccessibleTiles[0], x + i, y + j).IsAccessible = false;
                 else
-                    Spawn(AccessibleTiles[0], (int)centre.x + i, (int)centre.y + j).IsAccessible = false;
+                {
+                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j);
+                    temp.IsAccessible = true;
+                    StartPos.Add(temp);
+                    mAll.Add(temp);
+
+                    if (Vector3.Distance(temp.Position, PlayerBase.M.DoorFront.transform.position) < 5)
+                    {
+                        PlayerBase.M.DoorTile = temp;
+                    }
+                }
             }
         }
     }
+
     EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
     {
         Destroy(mMap[x][y].gameObject);
-        Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+        Vector3 tilePos = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+        EnvironmentTile tile;
+
         if (prefab.gameObject.activeInHierarchy)
         {
-            prefab.transform.position = position;
-            mMap[x][y] = prefab;
+            tile = prefab;
+            tile.transform.position = tilePos;
         }
         else
         {
-            mMap[x][y] = Instantiate(prefab, position, Quaternion.identity, transform);
+           tile = Instantiate(prefab, tilePos, Quaternion.identity, transform);
         }
-        return mMap[x][y];
+
+        tile.Position = new Vector3(tilePos.x + (TileSize / 2), TileHeight, tilePos.z + (TileSize / 2)); //Centre-Top of the tile
+        mMap[x][y] = tile;
+
+        return tile;
     }
 
     public void Replace(EnvironmentTile tile)
@@ -171,8 +193,6 @@ public class Environment : MonoBehaviour
             {
                 if(mMap[x][y] == tile)
                 {
-                    Debug.Log("Found");
-                    Debug.Log(tile.gameObject.name);
                     Destroy(tile.gameObject);
                     Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
                     mMap[x][y] = Instantiate(AccessibleTiles[0], position, Quaternion.identity, transform);
@@ -209,6 +229,22 @@ public class Environment : MonoBehaviour
     bool InRange(float x, float y)
     {
         return x < Size.x && x >= 0 && y < Size.y && y >= 0;
+    }
+
+    public EnvironmentTile ClosestTile(Vector3 pos)
+    {
+        EnvironmentTile closest = mMap[0][0];
+
+        for (int x = 0; x < Size.x; ++x)
+        {
+            for (int y = 0; y < Size.y; ++y)
+            {
+                if(Vector3.Distance(pos, mMap[x][y].Position) < Vector3.Distance(pos, closest.Position))
+                    closest = mMap[x][y];
+            }
+        }
+
+        return closest;
     }
 
     private float Distance(EnvironmentTile a, EnvironmentTile b)

@@ -4,23 +4,74 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
+    [Header("Stats")]
+    public float Health;
+
     [Header("Interaction")]
     public bool Busy;
+    public bool AtBase;
+
+    public EnvironmentTile PriorityTarget;
 
     [Header("Pathfinding")]
     [SerializeField] private float SingleNodeMoveTime = 0.5f;
     public EnvironmentTile CurrentPosition { get; set; }
+    public EnvironmentTile CurrentTarget;
+    public bool TargetReached;
     public bool Moving;
 
+    private void Update()
+    {
+        TargetReachedCheck();
+        FinishThenMove();
+        EnterBase();
+    }
 
     #region Interaction
+    void EnterBase()
+    {
+        if (PlayerBase.M.RTBCalled == true && !AtBase)
+        {
+            if (CurrentTarget == PlayerBase.M.DoorTile && TargetReached)
+            {
+                Debug.Log("Moving");
+                transform.position = PlayerBase.M.BaseTile.transform.position;
+                AtBase = true;
+            }
+        }
+
+        if(AtBase)
+            transform.position = PlayerBase.M.BaseTile.transform.position;
+    }
+
     public void Interact(Interactable Target)
     {
         Target.TargetingPlayer = this;
-        GoTo(Environment.M.Solve(CurrentPosition, Target.Tile));
+        Target.Interacted = true;
+        GoTo(Target.Tile);
         StartCoroutine(Target.Harvest());
     }
 
+    void TargetReachedCheck()
+    {
+        if (CurrentTarget)
+        {
+            TargetReached = CurrentPosition == CurrentTarget && Vector3.Distance(transform.position, CurrentTarget.Position) < 0.05f;
+        }
+            
+    }
+
+    void FinishThenMove()
+    {
+        if (PriorityTarget)
+        {
+            if (!Busy)
+            {
+                GoTo(PriorityTarget);
+                PriorityTarget = null;
+            }
+        }
+    }
     #endregion
 
     #region Pathfinding
@@ -29,7 +80,20 @@ public class Character : MonoBehaviour
         // Clear all coroutines before starting the new route so 
         // that clicks can interupt any current route animation
         StopAllCoroutines();
+        CurrentTarget = route[route.Count - 1];
         StartCoroutine(DoGoTo(route));
+
+    }
+    public void GoTo(EnvironmentTile target)
+    {
+        CurrentTarget = target;
+        List<EnvironmentTile> route = Environment.M.Solve(CurrentPosition, target);
+
+        // Clear all coroutines before starting the new route so 
+        // that clicks can interupt any current route animation
+        StopAllCoroutines();
+        StartCoroutine(DoGoTo(route));
+
     }
 
     private IEnumerator DoGoTo(List<EnvironmentTile> route)
