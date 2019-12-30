@@ -49,11 +49,6 @@ public class PlayerBase : MonoBehaviour
         AllPlayersAtBase = false;
     }
 
-    private void Update()
-    {
-        CheckBaseCount();
-    }
-
     private void OnMouseOver()
     {
         if(Input.GetMouseButtonUp(0))
@@ -62,19 +57,6 @@ public class PlayerBase : MonoBehaviour
         }
     }
     #region Base Info
-
-    void CheckBaseCount()
-    {
-        bool temp = true;
-
-        foreach(Character player in Players)
-        {
-            if(!player.AtBase)
-                temp = false;
-        }
-
-        AllPlayersAtBase = temp;
-    }
 
     public KeyValuePair<string, int> UpgradeInfo(out float CurrentAmount, out bool CanUpgrade)
     {
@@ -190,6 +172,7 @@ public class PlayerBase : MonoBehaviour
         }
 
         UI.M.ToggleBaseUI(false);
+        RTBCalled = false;
     }
 
     #endregion

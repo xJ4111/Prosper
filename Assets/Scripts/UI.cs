@@ -26,7 +26,6 @@ public class UI : MonoBehaviour
     [Header("Interaction UI")]
     [SerializeField] private GameObject Interact;
     [SerializeField] private TextMeshProUGUI InteractText;
-    [SerializeField] private TextMeshProUGUI ButtonText;
 
     [Header("Base UI")]
     [SerializeField] private GameObject BaseUIPanel;
@@ -61,12 +60,11 @@ public class UI : MonoBehaviour
         HUD.SetActive(!show);
     }
 
-    public void ToggleInteract(string Info, string Action)
+    public void ToggleInteract(string Info)
     {
         BaseUIPanel.SetActive(false);
         Interact.SetActive(true);
         InteractText.text = Info;
-        ButtonText.text = Action;
     }
 
     public void ToggleInteract(bool toggle)

@@ -9,7 +9,6 @@ public class Interactable : MonoBehaviour
     [HideInInspector] public EnvironmentTile Tile;
     [HideInInspector] public Character TargetingPlayer;
 
-    [SerializeField] private string Category;
     [SerializeField] private string Type;
     [SerializeField] private int Amount;
 
@@ -37,11 +36,22 @@ public class Interactable : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if(Input.GetMouseButtonUp(0) && !Interacted)
+        if (!Interacted)
         {
-            PlayerBase.M.Target = this;
-            UI.M.ToggleInteract(GetInfo(), Category);
+            UI.M.ToggleInteract(GetInfo());
+            if(Input.GetMouseButtonUp(0))
+            {
+                Interacted = true;
+                PlayerBase.M.Target = this;
+                PlayerBase.M.SendPlayer();
+                UI.M.ToggleInteract(false);
+            }
         }
+    }
+
+    private void OnMouseExit()
+    {   
+        UI.M.ToggleInteract(false);
     }
 
     #region Setup

@@ -39,8 +39,6 @@ public class Game : MonoBehaviour
     {
         if (show)
         {
-            mCharacter.transform.position = CharacterStart.position;
-            mCharacter.transform.rotation = CharacterStart.rotation;
             Environment.M.CleanUpWorld();
         }
         else

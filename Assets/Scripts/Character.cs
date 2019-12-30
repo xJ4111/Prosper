@@ -32,11 +32,14 @@ public class Character : MonoBehaviour
     {
         if (PlayerBase.M.RTBCalled == true && !AtBase)
         {
-            if (CurrentTarget == PlayerBase.M.DoorTile && TargetReached)
+            if (CurrentPosition == PlayerBase.M.DoorTile)
             {
-                Debug.Log("Moving");
                 transform.position = PlayerBase.M.BaseTile.transform.position;
                 AtBase = true;
+                PlayerBase.M.PlayersAtBase++;
+
+                if (PlayerBase.M.PlayersAtBase == PlayerBase.M.Players.Count)
+                    PlayerBase.M.AllPlayersAtBase = true;
             }
         }
 

@@ -50,7 +50,7 @@ public class InventoryBar : MonoBehaviour
 
     void BarUpdate()
     {
-        TargetSize = 750 * ((float)PlayerBase.M.Inventory[Resource] / (float)PlayerBase.M.StorageCapacity);
+        TargetSize = 500 * ((float)PlayerBase.M.Inventory[Resource] / (float)PlayerBase.M.StorageCapacity);
 
         if (size != TargetSize)
         {
