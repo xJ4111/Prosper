@@ -47,6 +47,9 @@ public class PlayerBase : MonoBehaviour
         AddItem("Rock", 1);
 
         AllPlayersAtBase = false;
+
+        UI.M.ButtonSetup();
+        DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
     }
 
     private void OnMouseOver()
@@ -57,7 +60,6 @@ public class PlayerBase : MonoBehaviour
         }
     }
     #region Base Info
-
     public KeyValuePair<string, int> UpgradeInfo(out float CurrentAmount, out bool CanUpgrade)
     {
         //Base cost + 1k per building
@@ -114,10 +116,10 @@ public class PlayerBase : MonoBehaviour
     #endregion
 
     #region Base Actions
-
     public void RTB()
     {
         RTBCalled = true;
+        AllPlayersAtBase = true;
 
         foreach (Character player in Players)
         {
@@ -173,20 +175,23 @@ public class PlayerBase : MonoBehaviour
 
         UI.M.ToggleBaseUI(false);
         RTBCalled = false;
+        AllPlayersAtBase = false;
     }
 
     #endregion
 
     #region Player Actions
-    public void SendPlayer()
+    public bool SendPlayer()
     {
-        if(Closest(Target.Tile))
+        if (Closest(Target.Tile))
         {
             Closest(Target.Tile).Interact(Target);
+            return true;
         }
         else
         {
             NoPlayerAvailable();
+            return false;
         }
     }
 

@@ -25,12 +25,6 @@ public class Game : MonoBehaviour
     private Character mCharacter;
     void Start()
     {
-        mCharacter = Instantiate(Character, CharacterStart);
-
-        for (int i = 0; i < CharacterCount; i++)
-        {
-            PlayerBase.M.Players.Add(Instantiate(Character, CharacterStart));
-        }
         ShowMenu(true);
     }
 
@@ -73,6 +67,11 @@ public class Game : MonoBehaviour
     public void Generate()
     {
         Environment.M.GenerateWorld();
+
+        for (int i = 0; i < CharacterCount; i++)
+        {
+            PlayerBase.M.Players.Add(Instantiate(Character, CharacterStart));
+        }
     }
     #endregion
 

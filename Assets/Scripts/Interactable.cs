@@ -36,14 +36,14 @@ public class Interactable : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (!Interacted)
+        if (!UI.M.BaseUIPanel.activeSelf && !Interacted)
         {
             UI.M.ToggleInteract(GetInfo());
-            if(Input.GetMouseButtonUp(0))
+            PlayerBase.M.Target = this;
+
+            if (Input.GetMouseButtonUp(0) && PlayerBase.M.SendPlayer())
             {
                 Interacted = true;
-                PlayerBase.M.Target = this;
-                PlayerBase.M.SendPlayer();
                 UI.M.ToggleInteract(false);
             }
         }

@@ -28,7 +28,7 @@ public class UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI InteractText;
 
     [Header("Base UI")]
-    [SerializeField] private GameObject BaseUIPanel;
+    [SerializeField] public GameObject BaseUIPanel;
     [SerializeField] private GameObject BaseActionPanel;
     [SerializeField] private GameObject RTBButton;
 
@@ -89,6 +89,18 @@ public class UI : MonoBehaviour
             RTBButton.SetActive(true);
             BaseActionPanel.SetActive(false);
         }
+    }
+
+    public void ButtonSetup()
+    {
+        Button[] buttons = BaseUIPanel.GetComponentsInChildren<Button>();
+
+        buttons[0].onClick.AddListener(() => PlayerBase.M.Heal());
+        buttons[1].onClick.AddListener(() => PlayerBase.M.Upgrade());
+        //buttons[2].onClick.AddListener(() => PlayerBase.M.AddBuilding());
+        //buttons[3].onClick.AddListener(PlayerBase.M.RemoveBuilding());
+        buttons[4].onClick.AddListener(() => PlayerBase.M.Deploy());
+        buttons[5].onClick.AddListener(() => PlayerBase.M.RTB());
     }
 
     void BaseActionUpdate()

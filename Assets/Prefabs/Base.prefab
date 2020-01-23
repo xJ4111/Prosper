@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5225831561217036612}
   - component: {fileID: 7093103895150171822}
   - component: {fileID: 5334918604784798779}
+  - component: {fileID: 8521051930921944848}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -124,9 +125,28 @@ MonoBehaviour:
   BaseTile: {fileID: 5225831561217036612}
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
+  AllPlayersAtBase: 0
+  PlayersAtBase: 0
+  UpgradeLevel: 0
   Players: []
+  StorageCapacity: 0
+  CombatLevel: 0
   ToolLevel: 0
   Target: {fileID: 0}
+  RTBCalled: 0
+--- !u!65 &8521051930921944848
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3030514941319876423}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 29.381525, y: 14.947775, z: 29.538021}
+  m_Center: {x: 5.106, y: 7.4738874, z: 5.079977}
 --- !u!1 &8368059884739581678
 GameObject:
   m_ObjectHideFlags: 0

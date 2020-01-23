@@ -8,6 +8,7 @@ public class Environment : MonoBehaviour
 
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
+    [SerializeField] private List<EnvironmentTile> Buildings;
     [SerializeField] private Vector2Int Size;
     [SerializeField] private float AccessiblePercentage;
 
@@ -81,12 +82,18 @@ public class Environment : MonoBehaviour
         }
     }
 
+    #region World Generation
+    public void GenerateWorld()
+    {
+        Generate();
+        SetupConnections();
+    }
+
     private void Generate()
     {
         // Setup the map of the environment tiles according to the specified width and height
         // Generate tiles from the list of accessible and inaccessible prefabs using a random
         // and the specified accessible percentage
-
 
         mMap = new EnvironmentTile[Size.x][];
         for (int x = 0; x < Size.x; ++x)
@@ -96,109 +103,6 @@ public class Environment : MonoBehaviour
 
         Misc();
         MakeBase();
-    }
-
-    private void Misc()
-    {
-        int halfWidth = Size.x / 2;
-        int halfHeight = Size.y / 2;
-        Vector3 position = new Vector3( -(halfWidth * TileSize), 0.0f, -(halfHeight * TileSize) );
-        bool start = true;
-
-        for ( int x = 0; x < Size.x; ++x)
-        {
-            mMap[x] = new EnvironmentTile[Size.y];
-            for ( int y = 0; y < Size.y; ++y)
-            {
-                bool isAccessible = start || Random.value < AccessiblePercentage;
-                List<EnvironmentTile> tiles = isAccessible ? AccessibleTiles : InaccessibleTiles;
-                EnvironmentTile prefab = tiles[Random.Range(0, tiles.Count)];
-                EnvironmentTile tile = Instantiate(prefab, position, Quaternion.identity, transform);
-                tile.Position = new Vector3( position.x + (TileSize / 2), TileHeight, position.z + (TileSize / 2));
-                tile.IsAccessible = isAccessible;
-                tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
-                mMap[x][y] = tile;
-                mAll.Add(tile);
-
-                if(start)
-                {
-                    //Start = tile;
-                }
-
-                position.z += TileSize;
-                start = false;
-            }
-
-            position.x += TileSize;
-            position.z = -(halfHeight * TileSize);
-        }
-    }
-    void MakeBase()
-    {
-        Vector2 centre = new Vector2(Size.x / 2, Size.y / 2);
-        int x = (int)centre.x;
-        int y = (int)centre.y;
-
-        for (int i = -2; i <= 2; i++)
-        {
-            for (int j = -2; j <= 2; j++)
-            {
-                if (i == 0 && j == 0)
-                    Spawn(PlayerBase.M.BaseTile, x + i, y + j).IsAccessible = false;
-                else if(i <= 1 && i >= -1 && j <= 1 && j >= -1)
-                    Spawn(AccessibleTiles[0], x + i, y + j).IsAccessible = false;
-                else
-                {
-                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j);
-                    temp.IsAccessible = true;
-                    StartPos.Add(temp);
-                    mAll.Add(temp);
-
-                    if (Vector3.Distance(temp.Position, PlayerBase.M.DoorFront.transform.position) < 5)
-                    {
-                        PlayerBase.M.DoorTile = temp;
-                    }
-                }
-            }
-        }
-    }
-
-    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
-    {
-        Destroy(mMap[x][y].gameObject);
-        Vector3 tilePos = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
-        EnvironmentTile tile;
-
-        if (prefab.gameObject.activeInHierarchy)
-        {
-            tile = prefab;
-            tile.transform.position = tilePos;
-        }
-        else
-        {
-           tile = Instantiate(prefab, tilePos, Quaternion.identity, transform);
-        }
-
-        tile.Position = new Vector3(tilePos.x + (TileSize / 2), TileHeight, tilePos.z + (TileSize / 2)); //Centre-Top of the tile
-        mMap[x][y] = tile;
-
-        return tile;
-    }
-
-    public void Replace(EnvironmentTile tile)
-    {
-        for (int x = 0; x < Size.x; ++x)
-        {
-            for (int y = 0; y < Size.y; ++y)
-            {
-                if(mMap[x][y] == tile)
-                {
-                    Destroy(tile.gameObject);
-                    Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
-                    mMap[x][y] = Instantiate(AccessibleTiles[0], position, Quaternion.identity, transform);
-                }
-            }
-        }
     }
 
     private void SetupConnections()
@@ -225,6 +129,114 @@ public class Environment : MonoBehaviour
             }
         }
     }
+    public void CleanUpWorld()
+    {
+        if (mMap != null)
+        {
+            for (int x = 0; x < Size.x; ++x)
+            {
+                for (int y = 0; y < Size.y; ++y)
+                {
+                    Destroy(mMap[x][y].gameObject);
+                }
+            }
+        }
+    }
+
+
+    #endregion
+
+    #region Entity Generation
+    void MakeBase()
+    {
+        Vector2 centre = new Vector2(Size.x / 2, Size.y / 2);
+        int x = (int)centre.x;
+        int y = (int)centre.y;
+
+        for (int i = -2; i <= 2; i++)
+        {
+            for (int j = -2; j <= 2; j++)
+            {
+                if (i == 0 && j == 0)
+                    Spawn(Buildings[0], x + i, y + j).IsAccessible = false;
+                else if (i <= 1 && i >= -1 && j <= 1 && j >= -1)
+                    Spawn(AccessibleTiles[0], x + i, y + j).IsAccessible = false;
+                else
+                {
+                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j);
+                    temp.IsAccessible = true;
+                    StartPos.Add(temp);
+                    mAll.Add(temp);
+                }
+            }
+        }
+    }
+
+    private void Misc()
+    {
+        int halfWidth = Size.x / 2;
+        int halfHeight = Size.y / 2;
+        Vector3 position = new Vector3(-(halfWidth * TileSize), 0.0f, -(halfHeight * TileSize));
+        bool start = true;
+
+        for (int x = 0; x < Size.x; ++x)
+        {
+            mMap[x] = new EnvironmentTile[Size.y];
+            for (int y = 0; y < Size.y; ++y)
+            {
+                bool isAccessible = start || Random.value < AccessiblePercentage;
+                List<EnvironmentTile> tiles = isAccessible ? AccessibleTiles : InaccessibleTiles;
+                EnvironmentTile prefab = tiles[Random.Range(0, tiles.Count)];
+                EnvironmentTile tile = Instantiate(prefab, position, Quaternion.identity, transform);
+                tile.Position = new Vector3(position.x + (TileSize / 2), TileHeight, position.z + (TileSize / 2));
+                tile.IsAccessible = isAccessible;
+                tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
+                mMap[x][y] = tile;
+                mAll.Add(tile);
+
+                if (start)
+                {
+                    //Start = tile;
+                }
+
+                position.z += TileSize;
+                start = false;
+            }
+
+            position.x += TileSize;
+            position.z = -(halfHeight * TileSize);
+        }
+    }
+
+    #endregion
+
+    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
+    {
+        Destroy(mMap[x][y].gameObject);
+        Vector3 tilePos = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+        EnvironmentTile tile = Instantiate(prefab, tilePos, Quaternion.identity, transform);
+
+        tile.Position = new Vector3(tilePos.x + (TileSize / 2), TileHeight, tilePos.z + (TileSize / 2)); //Centre-Top of the tile
+        mMap[x][y] = tile;
+
+        return tile;
+    }
+
+    public void Replace(EnvironmentTile tile)
+    {
+        for (int x = 0; x < Size.x; ++x)
+        {
+            for (int y = 0; y < Size.y; ++y)
+            {
+                if(mMap[x][y] == tile)
+                {
+                    Destroy(tile.gameObject);
+                    Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+                    mMap[x][y] = Instantiate(AccessibleTiles[0], position, Quaternion.identity, transform);
+                }
+            }
+        }
+    }
 
     bool InRange(float x, float y)
     {
@@ -247,47 +259,7 @@ public class Environment : MonoBehaviour
         return closest;
     }
 
-    private float Distance(EnvironmentTile a, EnvironmentTile b)
-    {
-        // Use the length of the connection between these two nodes to find the distance, this 
-        // is used to calculate the local goal during the search for a path to a location
-        float result = float.MaxValue;
-        EnvironmentTile directConnection = a.Connections.Find(c => c == b);
-        if (directConnection != null)
-        {
-            result = TileSize;
-        }
-        return result;
-    }
-
-    public float Heuristic(EnvironmentTile a, EnvironmentTile b)
-    {
-        // Use the locations of the node to estimate how close they are by line of sight
-        // experiment here with better ways of estimating the distance. This is used  to
-        // calculate the global goal and work out the best order to prossess nodes in
-        return Vector3.Distance(a.Position, b.Position);
-    }
-
-    public void GenerateWorld()
-    {
-        Generate();
-        SetupConnections();
-    }
-
-    public void CleanUpWorld()
-    {
-        if (mMap != null)
-        {
-            for (int x = 0; x < Size.x; ++x)
-            {
-                for (int y = 0; y < Size.y; ++y)
-                {
-                    Destroy(mMap[x][y].gameObject);
-                }
-            }
-        }
-    }
-
+    #region Pathfinding
     public List<EnvironmentTile> Solve(EnvironmentTile begin, EnvironmentTile destination)
     {
         List<EnvironmentTile> result = null;
@@ -300,7 +272,7 @@ public class Environment : MonoBehaviour
                 // Set all the state to its starting values
                 mToBeTested.Clear();
 
-                for( int count = 0; count < mAll.Count; ++count )
+                for (int count = 0; count < mAll.Count; ++count)
                 {
                     mAll[count].Parent = null;
                     mAll[count].Global = float.MaxValue;
@@ -396,4 +368,28 @@ public class Environment : MonoBehaviour
 
         return result;
     }
+    private float Distance(EnvironmentTile a, EnvironmentTile b)
+    {
+        // Use the length of the connection between these two nodes to find the distance, this 
+        // is used to calculate the local goal during the search for a path to a location
+        float result = float.MaxValue;
+        EnvironmentTile directConnection = a.Connections.Find(c => c == b);
+        if (directConnection != null)
+        {
+            result = TileSize;
+        }
+        return result;
+    }
+
+    public float Heuristic(EnvironmentTile a, EnvironmentTile b)
+    {
+        // Use the locations of the node to estimate how close they are by line of sight
+        // experiment here with better ways of estimating the distance. This is used  to
+        // calculate the global goal and work out the best order to prossess nodes in
+        return Vector3.Distance(a.Position, b.Position);
+    }
+    #endregion
+
+
+
 }
