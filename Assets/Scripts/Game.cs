@@ -25,7 +25,7 @@ public class Game : MonoBehaviour
     private Character mCharacter;
     void Start()
     {
-        ShowMenu(true);
+        //ShowMenu(true);
     }
 
     #region Game Initialisation

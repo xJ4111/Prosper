@@ -9,8 +9,8 @@ public class Environment : MonoBehaviour
     [Header("Generation Tiles")]
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
-    [SerializeField] private List<EnvironmentTile> Buildings;
     [SerializeField] private List<EnvironmentTile> ResourceTiles;
+    [SerializeField] private List<EnvironmentTile> Buildings;
 
     [Header("World Generation Parameters")]
     [SerializeField] private Vector2Int Size;
@@ -126,7 +126,7 @@ public class Environment : MonoBehaviour
         }
 
         Misc();
-        MakeBase();
+        MainBase();
         ResourceBiomes();
     }
 
@@ -172,24 +172,30 @@ public class Environment : MonoBehaviour
     #endregion
 
     #region Entity Generation
-    void MakeBase()
+    void MainBase()
     {
         Vector2 centre = new Vector2(Size.x / 2, Size.y / 2);
         int x = (int)centre.x;
         int y = (int)centre.y;
+
+        SpawnBuilding(Buildings[0], new Vector3Int(2, 2, 3), x, y);
 
         for (int i = -2; i <= 2; i++)
         {
             for (int j = -2; j <= 2; j++)
             {
                 if (i == 0 && j == 0)
-                    Spawn(Buildings[0], x + i, y + j, false);
+                {
+
+                }
                 else if (i <= 1 && i >= -1 && j <= 1 && j >= -1)
-                    Spawn(AccessibleTiles[0], x + i, y + j, false);
+                {
+
+                }
                 else
                 {
-                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j, true);
-                    StartPos.Add(temp);
+                    EnvironmentTile temp = SpawnTile(AccessibleTiles[0], x + i, y + j, true);
+                    StartPos.Add(mMap[x + i][y + j]);
                 }
             }
         }
@@ -221,13 +227,29 @@ public class Environment : MonoBehaviour
                         {
                             if (Random.Range(0, 100) < SpawnPercent)
                             {
-                                Spawn(resource, x + i, y + j, false);
+                                SpawnTile(resource, x + i, y + j, false);
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    void Monuments()
+    {
+        Vector2Int min = new Vector2Int((int)((Size.x / 2) - (Size.x * 0.2f)), (int)((Size.y / 2) - (Size.y * 0.2f)));
+        Vector2Int max = new Vector2Int((int)((Size.x / 2) + (Size.x * 0.2f)), (int)((Size.y / 2) + (Size.y * 0.2f)));
+
+        int x = min.x;
+        int y = max.y;
+
+        while (!WithinCentre(x, y, min, max))
+        {
+            x = Random.Range(10, Size.x - 10);
+            y = Random.Range(10, Size.y - 10);
+        }
+
     }
 
     private void Misc()
@@ -262,7 +284,7 @@ public class Environment : MonoBehaviour
     #endregion
 
     #region Tools
-    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y, bool access)
+    EnvironmentTile SpawnTile(EnvironmentTile prefab, int x, int y, bool access)
     {
 
         mAll.Remove(mMap[x][y]);
@@ -289,6 +311,32 @@ public class Environment : MonoBehaviour
         return tile;
     }
 
+    void SpawnBuilding(EnvironmentTile building, Vector3Int dimensions, int x, int y)
+    {
+        //Clear the area
+        for (int i = -dimensions.z; i <= dimensions.z; i++)
+        {
+            for (int j = -dimensions.z; j <= dimensions.z; j++)
+            {
+                Clear(mMap[x + i][y + j]);
+            }
+        }
+
+        //Spawn the building
+        SpawnTile(building, x, y, false);
+
+        //Block the area the building covers
+        for (int i = -dimensions.x; i <= dimensions.x; i++)
+        {
+            for (int j = -dimensions.y; j <= dimensions.y; j++)
+            {
+                if (i != 0 || j != 0)
+                    SpawnTile(AccessibleTiles[0], x + i, y + j, false);
+
+            }
+        }
+    }
+
     public void Clear(EnvironmentTile tile)
     {
         for (int x = 0; x < Size.x; ++x)
@@ -297,7 +345,7 @@ public class Environment : MonoBehaviour
             {
                 if(mMap[x][y] == tile)
                 {
-                    Spawn(AccessibleTiles[0], x, y, true);
+                    SpawnTile(AccessibleTiles[0], x, y, true);
                 }
             }
         }
