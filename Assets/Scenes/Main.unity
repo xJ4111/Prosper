@@ -4998,9 +4998,17 @@ MonoBehaviour:
   - {fileID: 428312736237616533, guid: b2937a6c300c0624a8fb7c65bf8b21b3, type: 3}
   Buildings:
   - {fileID: 5225831561217036612, guid: 5ee10150b40a39c48ae109364660c9af, type: 3}
-  Size: {x: 11, y: 11}
-  AccessiblePercentage: 0.85
+  ResourceTiles:
+  - {fileID: 4665734947335233729, guid: 84d83d076aecd1044aa0cdd7f246274b, type: 3}
+  - {fileID: 428312736237616533, guid: b2937a6c300c0624a8fb7c65bf8b21b3, type: 3}
+  Size: {x: 50, y: 50}
+  AccessiblePercentage: 1
+  AutoParam: 1
+  BiomeSize: 0
+  PerBiomeCount: 0
+  SpawnPercent: 30
   StartPos: []
+  EdgePieces: []
 --- !u!4 &2083344931
 Transform:
   m_ObjectHideFlags: 0

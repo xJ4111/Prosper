@@ -25,8 +25,8 @@ public class Interactable : MonoBehaviour
 
     void Start()
     {
-        SetInteractTile();
         SetTimerUI();
+        Tile = GetComponent<EnvironmentTile>();
     }
 
     void Update()
@@ -55,14 +55,6 @@ public class Interactable : MonoBehaviour
     }
 
     #region Setup
-    void SetInteractTile()
-    {
-        foreach (EnvironmentTile connection in GetComponent<EnvironmentTile>().Connections)
-        {
-            if (connection.IsAccessible && Vector3.Distance(GetComponent<EnvironmentTile>().Position, connection.Position) == 10)
-                Tile = connection;
-        }
-    }
 
     void SetTimerUI()
     {
@@ -136,6 +128,26 @@ public class Interactable : MonoBehaviour
 
         Environment.M.Replace(GetComponent<EnvironmentTile>());
         TargetingPlayer.Busy = false;
+    }
+
+    public EnvironmentTile TargetTile(Vector3 position)
+    {
+        EnvironmentTile Closest = new EnvironmentTile();
+        float dist = float.MaxValue;
+
+        foreach (EnvironmentTile t in Tile.Connections)
+        {
+            if (t.IsAccessible)
+            {
+                if (Vector3.Distance(t.Position, position) < dist)
+                {
+                    Closest = t;
+                    dist = Vector3.Distance(t.Position, position);
+                }
+            }
+        }
+
+        return Closest;
     }
     #endregion
 }

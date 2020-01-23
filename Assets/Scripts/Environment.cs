@@ -6,22 +6,35 @@ public class Environment : MonoBehaviour
 {
     public static Environment M;
 
+    [Header("Generation Tiles")]
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
     [SerializeField] private List<EnvironmentTile> Buildings;
+    [SerializeField] private List<EnvironmentTile> ResourceTiles;
+
+    [Header("World Generation Parameters")]
     [SerializeField] private Vector2Int Size;
     [SerializeField] private float AccessiblePercentage;
 
+    private readonly Vector3 NodeSize = Vector3.one * 9.0f;
+    private const float TileSize = 10.0f;
+    private const float TileHeight = 2.5f;
+
+    [Header("Resource Biome Generation Parameters")]
+    [SerializeField] private bool AutoParam;
+    [SerializeField] private int BiomeSize;
+    [SerializeField] private int PerBiomeCount;
+    [SerializeField] private int SpawnPercent = 30;
+
+    [Header("Pathfinding")]
     private EnvironmentTile[][] mMap;
     private List<EnvironmentTile> mAll;
     private List<EnvironmentTile> mToBeTested;
     private List<EnvironmentTile> mLastSolution;
 
-    private readonly Vector3 NodeSize = Vector3.one * 9.0f; 
-    private const float TileSize = 10.0f;
-    private const float TileHeight = 2.5f;
-
+    [Header("Spawn Positions")]
     public List<EnvironmentTile> StartPos;
+    public List<EnvironmentTile> EdgePieces;
 
     private void Awake()
     {
@@ -37,6 +50,12 @@ public class Environment : MonoBehaviour
         StartPos = new List<EnvironmentTile>();
         mAll = new List<EnvironmentTile>();
         mToBeTested = new List<EnvironmentTile>();
+
+        if (AutoParam)
+        {
+            BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 2;
+            PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 2;
+        }
     }
 
     private void OnDrawGizmos()
@@ -103,6 +122,7 @@ public class Environment : MonoBehaviour
 
         Misc();
         MakeBase();
+        ResourceBiomes();
     }
 
     private void SetupConnections()
@@ -172,6 +192,41 @@ public class Environment : MonoBehaviour
         }
     }
 
+    void ResourceBiomes()
+    {
+        Vector2Int min = new Vector2Int((int)((Size.x / 2) - (Size.x * 0.1f)), (int)((Size.y / 2) - (Size.y * 0.1f)));
+        Vector2Int max = new Vector2Int((int)((Size.x / 2) + (Size.x * 0.1f)), (int)((Size.y / 2) + (Size.y * 0.1f)));
+
+        foreach (EnvironmentTile resource in ResourceTiles)
+        {
+            for (int count = 0; count < PerBiomeCount; count++)
+            {
+                int x = min.x;
+                int y = max.y;
+
+                while (!WithinCentre(x, y, min, max))
+                {
+                    x = Random.Range(0, Size.x);
+                    y = Random.Range(0, Size.y);
+                }
+
+                for (int i = -BiomeSize; i < BiomeSize; i++)
+                {
+                    for (int j = -BiomeSize; j < BiomeSize; j++)
+                    {
+                        if (InRange(x + i, y + j))
+                        {
+                            if (Random.Range(0, 100) < SpawnPercent)
+                            {
+                                Spawn(resource, x + i, y + j);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void Misc()
     {
         int halfWidth = Size.x / 2;
@@ -210,6 +265,7 @@ public class Environment : MonoBehaviour
 
     #endregion
 
+    #region Tools
     EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
     {
         Destroy(mMap[x][y].gameObject);
@@ -242,22 +298,11 @@ public class Environment : MonoBehaviour
     {
         return x < Size.x && x >= 0 && y < Size.y && y >= 0;
     }
-
-    public EnvironmentTile ClosestTile(Vector3 pos)
+    bool WithinCentre(int x, int y, Vector2 min, Vector2 max)
     {
-        EnvironmentTile closest = mMap[0][0];
-
-        for (int x = 0; x < Size.x; ++x)
-        {
-            for (int y = 0; y < Size.y; ++y)
-            {
-                if(Vector3.Distance(pos, mMap[x][y].Position) < Vector3.Distance(pos, closest.Position))
-                    closest = mMap[x][y];
-            }
-        }
-
-        return closest;
+        return (x < min.x || x > max.x) && (y < min.y || y > max.y);
     }
+    #endregion
 
     #region Pathfinding
     public List<EnvironmentTile> Solve(EnvironmentTile begin, EnvironmentTile destination)
@@ -390,6 +435,58 @@ public class Environment : MonoBehaviour
     }
     #endregion
 
+    #region Misc
+    public EnvironmentTile ClosestTile(Vector3 pos)
+    {
+        EnvironmentTile closest = mMap[0][0];
 
+        for (int x = 0; x < Size.x; ++x)
+        {
+            for (int y = 0; y < Size.y; ++y)
+            {
+                if (Vector3.Distance(pos, mMap[x][y].Position) < Vector3.Distance(pos, closest.Position))
+                    closest = mMap[x][y];
+            }
+        }
+
+        return closest;
+    }
+
+    public List<EnvironmentTile> FindEdges(EnvironmentTile Centre)
+    {
+        List<EnvironmentTile> edges = new List<EnvironmentTile>();
+        int x = 0;
+        int y = 0;
+
+        for (int i = 0; i < Size.x; ++i)
+        {
+            for (int j = 0; j < Size.y; ++j)
+            {
+                if (mMap[i][j] == Centre)
+                {
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+
+        for (int i = -2; i <= 2; i++)
+        {
+            for (int j = -2; j <= 2; j++)
+            {
+                if (i == -2 || i == 2 || j == -2 || j == 2)
+                {
+                    if (mMap[x + i][y + j].IsAccessible)
+                    {
+                        edges.Add(mMap[x + i][y + j]);
+                    }
+                }
+            }
+        }
+
+        return new List<EnvironmentTile>();
+    }
+
+    #endregion
 
 }

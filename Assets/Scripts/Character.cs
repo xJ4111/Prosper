@@ -51,7 +51,7 @@ public class Character : MonoBehaviour
     {
         Target.TargetingPlayer = this;
         Target.Interacted = true;
-        GoTo(Target.Tile);
+        GoTo(Target.TargetTile(CurrentPosition.Position));
         StartCoroutine(Target.Harvest());
     }
 
