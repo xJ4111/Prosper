@@ -28,7 +28,7 @@ public class Environment : MonoBehaviour
 
     [Header("Pathfinding")]
     private EnvironmentTile[][] mMap;
-    private List<EnvironmentTile> mAll;
+    public List<EnvironmentTile> mAll;
     private List<EnvironmentTile> mToBeTested;
     private List<EnvironmentTile> mLastSolution;
 
@@ -56,6 +56,11 @@ public class Environment : MonoBehaviour
             BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 2;
             PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 2;
         }
+    }
+
+    private void Update()
+    {
+
     }
 
     private void OnDrawGizmos()
@@ -178,15 +183,13 @@ public class Environment : MonoBehaviour
             for (int j = -2; j <= 2; j++)
             {
                 if (i == 0 && j == 0)
-                    Spawn(Buildings[0], x + i, y + j).IsAccessible = false;
+                    Spawn(Buildings[0], x + i, y + j, false);
                 else if (i <= 1 && i >= -1 && j <= 1 && j >= -1)
-                    Spawn(AccessibleTiles[0], x + i, y + j).IsAccessible = false;
+                    Spawn(AccessibleTiles[0], x + i, y + j, false);
                 else
                 {
-                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j);
-                    temp.IsAccessible = true;
+                    EnvironmentTile temp = Spawn(AccessibleTiles[0], x + i, y + j, true);
                     StartPos.Add(temp);
-                    mAll.Add(temp);
                 }
             }
         }
@@ -218,7 +221,7 @@ public class Environment : MonoBehaviour
                         {
                             if (Random.Range(0, 100) < SpawnPercent)
                             {
-                                Spawn(resource, x + i, y + j);
+                                Spawn(resource, x + i, y + j, false);
                             }
                         }
                     }
@@ -232,14 +235,13 @@ public class Environment : MonoBehaviour
         int halfWidth = Size.x / 2;
         int halfHeight = Size.y / 2;
         Vector3 position = new Vector3(-(halfWidth * TileSize), 0.0f, -(halfHeight * TileSize));
-        bool start = true;
 
         for (int x = 0; x < Size.x; ++x)
         {
             mMap[x] = new EnvironmentTile[Size.y];
             for (int y = 0; y < Size.y; ++y)
             {
-                bool isAccessible = start || Random.value < AccessiblePercentage;
+                bool isAccessible = Random.value < AccessiblePercentage;
                 List<EnvironmentTile> tiles = isAccessible ? AccessibleTiles : InaccessibleTiles;
                 EnvironmentTile prefab = tiles[Random.Range(0, tiles.Count)];
                 EnvironmentTile tile = Instantiate(prefab, position, Quaternion.identity, transform);
@@ -249,13 +251,7 @@ public class Environment : MonoBehaviour
                 mMap[x][y] = tile;
                 mAll.Add(tile);
 
-                if (start)
-                {
-                    //Start = tile;
-                }
-
                 position.z += TileSize;
-                start = false;
             }
 
             position.x += TileSize;
@@ -266,19 +262,34 @@ public class Environment : MonoBehaviour
     #endregion
 
     #region Tools
-    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y)
+    EnvironmentTile Spawn(EnvironmentTile prefab, int x, int y, bool access)
     {
-        Destroy(mMap[x][y].gameObject);
-        Vector3 tilePos = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
-        EnvironmentTile tile = Instantiate(prefab, tilePos, Quaternion.identity, transform);
 
-        tile.Position = new Vector3(tilePos.x + (TileSize / 2), TileHeight, tilePos.z + (TileSize / 2)); //Centre-Top of the tile
+        mAll.Remove(mMap[x][y]);
+        Destroy(mMap[x][y].gameObject);
+
+        int halfWidth = Size.x / 2;
+        int halfHeight = Size.y / 2;
+        Vector3 tilePos = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
+
+        EnvironmentTile tile = Instantiate(prefab, tilePos, Quaternion.identity, transform);
+        tile.Position = new Vector3(tilePos.x + (TileSize / 2), TileHeight, tilePos.z + (TileSize / 2));
+        tile.IsAccessible = access;
+        tile.Connections = mMap[x][y].Connections;
+
+        foreach(EnvironmentTile t in tile.Connections.ToArray())
+        {
+            t.Connections.Add(tile);
+        }
+
+        tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
         mMap[x][y] = tile;
+        mAll.Add(tile);
 
         return tile;
     }
 
-    public void Replace(EnvironmentTile tile)
+    public void Clear(EnvironmentTile tile)
     {
         for (int x = 0; x < Size.x; ++x)
         {
@@ -286,9 +297,7 @@ public class Environment : MonoBehaviour
             {
                 if(mMap[x][y] == tile)
                 {
-                    Destroy(tile.gameObject);
-                    Vector3 position = new Vector3(mMap[x][y].Position.x - (TileSize / 2), mMap[x][y].Position.y - TileHeight, mMap[x][y].Position.z - (TileSize / 2));
-                    mMap[x][y] = Instantiate(AccessibleTiles[0], position, Quaternion.identity, transform);
+                    Spawn(AccessibleTiles[0], x, y, true);
                 }
             }
         }

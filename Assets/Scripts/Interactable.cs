@@ -126,8 +126,9 @@ public class Interactable : MonoBehaviour
             PlayerBase.M.AddItem(Type, Amount);
 
 
-        Environment.M.Replace(GetComponent<EnvironmentTile>());
+        Environment.M.Clear(Tile);
         TargetingPlayer.Busy = false;
+        Destroy(gameObject);
     }
 
     public EnvironmentTile TargetTile(Vector3 position)

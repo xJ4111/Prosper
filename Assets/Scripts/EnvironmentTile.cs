@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnvironmentTile : MonoBehaviour
 {
-    public List<EnvironmentTile> Connections { get; set; }
+    public List<EnvironmentTile> Connections;
     public EnvironmentTile Parent { get; set; }
     public Vector3 Position { get; set; }
     public float Global { get; set; }
