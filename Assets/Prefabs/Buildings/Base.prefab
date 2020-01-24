@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Centre: {fileID: 5225831561217036612}
-  Dimensions: {x: 2, y: 2, z: 3}
+  Dimensions: {x: 1, y: 1, z: 3}
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints:
@@ -278,6 +278,7 @@ MonoBehaviour:
   StorageCapacity: 0
   CombatLevel: 0
   ToolLevel: 0
+  RaidOngoing: 0
   Target: {fileID: 0}
   RTBCalled: 0
 --- !u!65 &7093103895150171822

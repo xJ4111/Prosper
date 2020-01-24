@@ -9,9 +9,11 @@ public class Location : Building
     [Header("Location Information")]
     public string Name;
     public bool Guarded;
-    public int EnemyLevel;
+    public int EnemyLevel = 0;
     public string LootType;
     public float LootTime;
+    [SerializeField] private string item;
+    [SerializeField] private int count;
 
     [Header("Raid Information")]
     [SerializeField] private Canvas Timer;
@@ -24,8 +26,7 @@ public class Location : Building
     {
         if(Input.GetMouseButtonDown(0))
         {
-            Debug.Log(LocationInfo());
-            InititateRaid();
+            UI.M.ToggleRaidUI(this);
         }
     }
 
@@ -37,39 +38,41 @@ public class Location : Building
         }
     }
 
-    string LocationInfo()
+    public void InititateRaid()
     {
-        string info = "";
-
-        info += "Loot Type: " + LootType + "\n";
-
-        if (Guarded)
-            info += "Guarded by Level " + EnemyLevel + " Enemies. " + PlayerBase.M.CombatLevel / EnemyLevel + " Success Chance \n";
-        else
-            info += "Location Unguarded. 100% Success Chance \n";
-
-        info += "Loot Time: " + LootTime + "\n";
-
-        return info;
-    }
-
-    void InititateRaid()
-    {
-        raiding = true;
-
-        foreach (Character player in PlayerBase.M.Players)
+        if(PlayerBase.M.RaidOngoing)
         {
-            player.TargetBuilding = this;
+            Debug.Log("Already Raiding Elsewhere");
+            UI.M.ToggleRaidUI();
+        }
+        else
+        {
+            UI.M.ToggleRaidUI();
 
-            if (!player.Busy)
+            if (!PlayerBase.M.RTBCalled)
             {
-                player.GoTo(DoorTile);
-                player.Busy = true;
+                raiding = true;
+                PlayerBase.M.RaidOngoing = true;
+
+                foreach (Character player in PlayerBase.M.Players)
+                {
+                    player.TargetBuilding = this;
+
+                    if (!player.Busy)
+                    {
+                        player.GoTo(DoorTile);
+                        player.Busy = true;
+                    }
+                    else
+                    {
+                        player.PriorityTarget = DoorTile;
+                        player.Busy = true;
+                    }
+                }
             }
             else
             {
-                player.PriorityTarget = DoorTile;
-                player.Busy = true;
+                Debug.Log("No Players Available For Raid");
             }
         }
     }
@@ -78,6 +81,9 @@ public class Location : Building
     {
         if (startTime == 0)
             startTime = Time.time;
+
+        if (!Timer.gameObject.activeSelf)
+            Timer.gameObject.SetActive(true);
 
         Quaternion rot = Quaternion.LookRotation(CameraMovement.M.Cam.gameObject.transform.position - Timer.transform.position);
         Timer.transform.rotation = rot * Quaternion.Euler(0, 180, 0);
@@ -112,12 +118,13 @@ public class Location : Building
 
             ExitBuilding();
             raiding = false;
+            startTime = 0;
         }
     }
 
     void Loot()
     {
-        PlayerBase.M.AddItem("Metal", 1000);
+        PlayerBase.M.AddItem(item, count);
     }
 
     void Damage(bool raidWon)

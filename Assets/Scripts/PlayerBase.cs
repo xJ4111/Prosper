@@ -26,8 +26,10 @@ public class PlayerBase : MonoBehaviour
     public List<Character> Players;
     public Dictionary<string, int> Inventory;
     public int StorageCapacity;
-    public int CombatLevel;
+    public int CombatLevel = 1;
     public int ToolLevel;
+
+    public bool RaidOngoing = false;
 
 
     [Header("Player Actions")]
@@ -50,6 +52,9 @@ public class PlayerBase : MonoBehaviour
             UI.M.ToggleBaseUI(true);
         }
     }
+
+
+
     #region Base Info
     public KeyValuePair<string, int> UpgradeInfo(out float CurrentAmount, out bool CanUpgrade)
     {
@@ -109,16 +114,23 @@ public class PlayerBase : MonoBehaviour
     #region Base Actions
     public void RTB()
     {
-        RTBCalled = true;
-
-        foreach (Character player in Players)
+        if(!RaidOngoing)
         {
-            player.TargetBuilding = Main;
+            RTBCalled = true;
 
-            if (!player.Busy)
-                player.GoTo(Main.DoorTile);
-            else
-                player.PriorityTarget = Main.DoorTile;
+            foreach (Character player in Players)
+            {
+                player.TargetBuilding = Main;
+
+                if (!player.Busy)
+                    player.GoTo(Main.DoorTile);
+                else
+                    player.PriorityTarget = Main.DoorTile;
+            }
+        }
+        else
+        {
+            Debug.Log("Ongoing Raid, RTB Unavailable");
         }
 
         UI.M.ToggleBaseUI(false);

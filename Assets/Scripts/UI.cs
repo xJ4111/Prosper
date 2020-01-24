@@ -28,13 +28,19 @@ public class UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI InteractText;
 
     [Header("Base UI")]
-    [SerializeField] public GameObject BaseUIPanel;
+    public GameObject BaseUIPanel;
     [SerializeField] private GameObject BaseActionPanel;
     [SerializeField] private GameObject RTBButton;
 
     private List<Button> buttons;
     private List<TextMeshProUGUI> texts;
     private List<TextMeshProUGUI> costs;
+
+    [Header("Raid UI")]
+    public GameObject RaidUIPanel;
+    [SerializeField] private TextMeshProUGUI RaidTitle;
+    [SerializeField] private TextMeshProUGUI RaidInfo;
+    [SerializeField] private Button RaidButton;
 
     private void Start()
     {
@@ -60,6 +66,8 @@ public class UI : MonoBehaviour
         HUD.SetActive(!show);
     }
 
+    #region Interaction
+
     public void ToggleInteract(string Info)
     {
         BaseUIPanel.SetActive(false);
@@ -67,11 +75,14 @@ public class UI : MonoBehaviour
         InteractText.text = Info;
     }
 
-    public void ToggleInteract(bool toggle)
+    public void ToggleInteract()
     {
         Interact.SetActive(false);
     }
 
+    #endregion
+
+    #region Base UI
     public void ToggleBaseUI(bool toggle)
     {
         Interact.SetActive(false);
@@ -170,4 +181,41 @@ public class UI : MonoBehaviour
 
         }
     }
+
+    #endregion
+
+    #region Raid UI
+
+    public void ToggleRaidUI(Location target)
+    {
+        RaidUIPanel.SetActive(true);
+
+        RaidTitle.text = target.Name;
+        RaidInfo.text = GetRaidInfo(target);
+
+        RaidButton.onClick.RemoveAllListeners();
+        RaidButton.onClick.AddListener(() => target.InititateRaid());
+    }
+
+    public void ToggleRaidUI()
+    {
+        RaidUIPanel.SetActive(false);
+    }
+
+    string GetRaidInfo(Location target)
+    {
+        string info = "";
+
+        info += "Loot Type: " + target.LootType + "\n";
+
+        if (target.Guarded)
+            info += "Guarded by Level " + target.EnemyLevel + " Enemies. " + PlayerBase.M.CombatLevel / target.EnemyLevel + " Success Chance \n";
+        else
+            info += "Location Unguarded. 100% Success Chance \n";
+
+        info += "Loot Time: " + target.LootTime + "\n";
+
+        return info;
+    }
+    #endregion
 }

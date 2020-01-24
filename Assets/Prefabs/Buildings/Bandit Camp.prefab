@@ -57,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e66df72ecebdf9444a4c37292e5bd1db, type: 2}
+  - {fileID: 2100000, guid: 937a6c921839d794a9a741fbf22456ac, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 7093103895150171822}
   - component: {fileID: 4857228171954001596}
   m_Layer: 0
-  m_Name: Gas Station
+  m_Name: Bandit Camp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -194,13 +194,13 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
-  Name: Gas Station
-  Guarded: 0
-  EnemyLevel: 0
-  LootType: Food & Tools
-  LootTime: 30
-  item: Metal
-  count: 1000
+  Name: Launch Site
+  Guarded: 1
+  EnemyLevel: 1000
+  LootType: 'New Teammate: Skinhead Rooney'
+  LootTime: 45
+  item: Crossbow
+  count: 1
   Timer: {fileID: 7251615201348473477}
   TimerText: {fileID: 287270898282862416}
   TimerBar: {fileID: 4276958252201435648}

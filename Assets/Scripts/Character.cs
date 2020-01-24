@@ -78,7 +78,7 @@ public class Character : MonoBehaviour
 
     void FinishThenMove()
     {
-        if (PriorityTarget)
+        if (PriorityTarget && !TargetBuilding)
         {
             if (!Busy)
             {

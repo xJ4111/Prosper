@@ -144,7 +144,8 @@ public class Environment : MonoBehaviour
                     {
                         if (InRange(x + i, y + j))
                         {
-                            tile.Connections.Add(mMap[x + i][y + j]);
+                            if(i != 0 || j != 0)
+                                tile.Connections.Add(mMap[x + i][y + j]);
                         }
                     }
                 }
@@ -241,16 +242,19 @@ public class Environment : MonoBehaviour
         Vector2Int min = new Vector2Int((int)((Size.x / 2) - (Size.x * 0.2f)), (int)((Size.y / 2) - (Size.y * 0.2f)));
         Vector2Int max = new Vector2Int((int)((Size.x / 2) + (Size.x * 0.2f)), (int)((Size.y / 2) + (Size.y * 0.2f)));
 
-        int x = min.x;
-        int y = max.y;
-
-        while (!WithinCentre(x, y, min, max))
+        for(int i = 1; i < Buildings.Count; i++)
         {
-            x = Random.Range(10, Size.x - 10);
-            y = Random.Range(10, Size.y - 10);
-        }
+            int x = min.x;
+            int y = max.y;
 
-        SpawnBuilding(Buildings[1], x, y);
+            while (!WithinCentre(x, y, min, max))
+            {
+                x = Random.Range(10, Size.x - 10);
+                y = Random.Range(10, Size.y - 10);
+            }
+
+            SpawnBuilding(Buildings[i], x, y);
+        }
     }
 
     private void Misc()
@@ -284,7 +288,7 @@ public class Environment : MonoBehaviour
 
     #endregion
 
-    #region Tools
+    #region Entity Spawning
     EnvironmentTile SpawnTile(EnvironmentTile prefab, int x, int y, bool access)
     {
 
@@ -343,6 +347,7 @@ public class Environment : MonoBehaviour
             }
         }
         
+        //Set Spawn points
 
         for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
         {
@@ -350,7 +355,6 @@ public class Environment : MonoBehaviour
             {
                 if (Mathf.Abs(i) == (b.Dimensions.x + 1) || Mathf.Abs(j) == (b.Dimensions.y + 1))
                 {
-                    Debug.Log("REEEE");
                     building.SpawnPoints.Add(mMap[x + i][y + j]);
                 }
             }
@@ -369,15 +373,6 @@ public class Environment : MonoBehaviour
                 }
             }
         }
-    }
-
-    bool InRange(float x, float y)
-    {
-        return x < Size.x && x >= 0 && y < Size.y && y >= 0;
-    }
-    bool WithinCentre(int x, int y, Vector2 min, Vector2 max)
-    {
-        return (x < min.x || x > max.x) && (y < min.y || y > max.y);
     }
     #endregion
 
@@ -512,7 +507,16 @@ public class Environment : MonoBehaviour
     }
     #endregion
 
-    #region Misc
+    #region Tools
+    bool InRange(float x, float y)
+    {
+        return x < Size.x && x >= 0 && y < Size.y && y >= 0;
+    }
+    bool WithinCentre(int x, int y, Vector2 min, Vector2 max)
+    {
+        return (x < min.x || x > max.x) && (y < min.y || y > max.y);
+    }
+
     public EnvironmentTile ClosestTile(Vector3 pos)
     {
         EnvironmentTile closest = mMap[0][0];

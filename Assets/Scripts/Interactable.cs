@@ -44,14 +44,14 @@ public class Interactable : MonoBehaviour
             if (Input.GetMouseButtonUp(0) && PlayerBase.M.SendPlayer())
             {
                 Interacted = true;
-                UI.M.ToggleInteract(false);
+                UI.M.ToggleInteract();
             }
         }
     }
 
     private void OnMouseExit()
     {   
-        UI.M.ToggleInteract(false);
+        UI.M.ToggleInteract();
     }
 
     #region Setup
@@ -133,7 +133,7 @@ public class Interactable : MonoBehaviour
 
     public EnvironmentTile TargetTile(Vector3 position)
     {
-        EnvironmentTile Closest = new EnvironmentTile();
+        EnvironmentTile Closest = null;
         float dist = float.MaxValue;
 
         foreach (EnvironmentTile t in Tile.Connections)
@@ -148,7 +148,10 @@ public class Interactable : MonoBehaviour
             }
         }
 
-        return Closest;
+        if (Closest != null)
+            return Closest;
+        else
+            return null;
     }
     #endregion
 }
