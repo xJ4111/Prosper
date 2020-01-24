@@ -10,7 +10,7 @@ public class Environment : MonoBehaviour
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
     [SerializeField] private List<EnvironmentTile> ResourceTiles;
-    [SerializeField] private List<EnvironmentTile> Buildings;
+    [SerializeField] private List<Building> Buildings;
 
     [Header("World Generation Parameters")]
     [SerializeField] private Vector2Int Size;
@@ -58,10 +58,6 @@ public class Environment : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-
-    }
 
     private void OnDrawGizmos()
     {
@@ -128,6 +124,7 @@ public class Environment : MonoBehaviour
         Misc();
         MainBase();
         ResourceBiomes();
+        Monuments();
     }
 
     private void SetupConnections()
@@ -178,23 +175,26 @@ public class Environment : MonoBehaviour
         int x = (int)centre.x;
         int y = (int)centre.y;
 
-        SpawnBuilding(Buildings[0], new Vector3Int(2, 2, 3), x, y);
+        SpawnBuilding(Buildings[0], x, y);
 
         for (int i = -2; i <= 2; i++)
         {
             for (int j = -2; j <= 2; j++)
             {
-                if (i == 0 && j == 0)
-                {
-
-                }
-                else if (i <= 1 && i >= -1 && j <= 1 && j >= -1)
-                {
-
-                }
-                else
+                if (i == 2 || i == -2 || j == 2 && j == -2)
                 {
                     EnvironmentTile temp = SpawnTile(AccessibleTiles[0], x + i, y + j, true);
+                    StartPos.Add(mMap[x + i][y + j]);
+                }
+            }
+        }
+
+        for (int i = -2; i <= 2; i++)
+        {
+            for (int j = -2; j <= 2; j++)
+            {
+                if (i == 2 || i == -2 || j == 2 && j == -2)
+                {
                     StartPos.Add(mMap[x + i][y + j]);
                 }
             }
@@ -250,6 +250,7 @@ public class Environment : MonoBehaviour
             y = Random.Range(10, Size.y - 10);
         }
 
+        SpawnBuilding(Buildings[1], x, y);
     }
 
     private void Misc()
@@ -304,35 +305,54 @@ public class Environment : MonoBehaviour
             t.Connections.Add(tile);
         }
 
-        tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
+        if (tile.GetComponent<Building>())
+            tile.gameObject.transform.parent = null;
+        else
+            tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
+
         mMap[x][y] = tile;
         mAll.Add(tile);
 
         return tile;
     }
 
-    void SpawnBuilding(EnvironmentTile building, Vector3Int dimensions, int x, int y)
+    void SpawnBuilding(Building b, int x, int y)
     {
         //Clear the area
-        for (int i = -dimensions.z; i <= dimensions.z; i++)
+        for (int i = -b.Dimensions.z; i <= b.Dimensions.z; i++)
         {
-            for (int j = -dimensions.z; j <= dimensions.z; j++)
+            for (int j = -b.Dimensions.z; j <= b.Dimensions.z; j++)
             {
                 Clear(mMap[x + i][y + j]);
             }
         }
 
         //Spawn the building
-        SpawnTile(building, x, y, false);
+        Building building =  SpawnTile(b.Centre, x, y, false).GetComponent<Building>();
+        building.SpawnPoints.Clear();
 
         //Block the area the building covers
-        for (int i = -dimensions.x; i <= dimensions.x; i++)
+        for (int i = -b.Dimensions.x; i <= b.Dimensions.x; i++)
         {
-            for (int j = -dimensions.y; j <= dimensions.y; j++)
+            for (int j = -b.Dimensions.y; j <= b.Dimensions.y; j++)
             {
                 if (i != 0 || j != 0)
+                {
                     SpawnTile(AccessibleTiles[0], x + i, y + j, false);
+                }
+            }
+        }
+        
 
+        for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
+        {
+            for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
+            {
+                if (Mathf.Abs(i) == (b.Dimensions.x + 1) || Mathf.Abs(j) == (b.Dimensions.y + 1))
+                {
+                    Debug.Log("REEEE");
+                    building.SpawnPoints.Add(mMap[x + i][y + j]);
+                }
             }
         }
     }

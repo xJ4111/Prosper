@@ -77,7 +77,7 @@ public class UI : MonoBehaviour
         Interact.SetActive(false);
         BaseUIPanel.SetActive(toggle);
 
-        if (PlayerBase.M.AllPlayersAtBase)
+        if (PlayerBase.M.RTBCalled)
         {
             RTBButton.SetActive(false);
 

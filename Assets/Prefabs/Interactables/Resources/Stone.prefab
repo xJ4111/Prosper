@@ -95,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81c1a74f97fbca4a81350fa9f3bdddb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Connections: []
 --- !u!65 &6734424295721829354
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -122,7 +123,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Tile: {fileID: 428312736237616533}
   TargetingPlayer: {fileID: 0}
-  Category: Harvest
   Type: Stone
   Amount: 1000
   Interacted: 0

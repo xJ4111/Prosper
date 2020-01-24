@@ -18,12 +18,7 @@ public class PlayerBase : MonoBehaviour
     }
 
     [Header("Base Info")]
-    public EnvironmentTile BaseTile;
-    public GameObject DoorFront;
-    public EnvironmentTile DoorTile;
-
-    public bool AllPlayersAtBase;
-    public int PlayersAtBase = 0;
+    public Building Main;
     public int UpgradeLevel;
     private int buildingCount;
 
@@ -41,15 +36,11 @@ public class PlayerBase : MonoBehaviour
 
     void Start()
     {
-        BaseTile = GetComponent<EnvironmentTile>();
         Inventory = new Dictionary<string, int>();
         StorageCapacity = 5000;
         AddItem("Rock", 1);
-
-        AllPlayersAtBase = false;
-
+        Main = GetComponent<Building>();
         UI.M.ButtonSetup();
-        DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
     }
 
     private void OnMouseOver()
@@ -119,17 +110,15 @@ public class PlayerBase : MonoBehaviour
     public void RTB()
     {
         RTBCalled = true;
-        AllPlayersAtBase = true;
 
         foreach (Character player in Players)
         {
-            if(!player.AtBase)
-            {
-                if (!player.Busy)
-                    player.GoTo(DoorTile);
-                else
-                    player.PriorityTarget = DoorTile;
-            }
+            player.TargetBuilding = Main;
+
+            if (!player.Busy)
+                player.GoTo(Main.DoorTile);
+            else
+                player.PriorityTarget = Main.DoorTile;
         }
 
         UI.M.ToggleBaseUI(false);
@@ -154,6 +143,8 @@ public class PlayerBase : MonoBehaviour
 
         foreach (Character player in Players)
         {
+            player.TargetBuilding = null;
+
             EnvironmentTile temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count - 1)];
 
             if (!used.Contains(temp))
@@ -175,7 +166,6 @@ public class PlayerBase : MonoBehaviour
 
         UI.M.ToggleBaseUI(false);
         RTBCalled = false;
-        AllPlayersAtBase = false;
     }
 
     #endregion

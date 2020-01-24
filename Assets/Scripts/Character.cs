@@ -1,17 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Character : MonoBehaviour
 {
     [Header("Stats")]
-    public float Health;
+    public float Health = 100;
+
+    [Header("UI Elements")]
+    public Canvas PlayerUI;
+    public Image HealthBar;
 
     [Header("Interaction")]
     public bool Busy;
     public bool AtBase;
 
     public EnvironmentTile PriorityTarget;
+    public Building TargetBuilding;
 
     [Header("Pathfinding")]
     [SerializeField] private float SingleNodeMoveTime = 0.5f;
@@ -24,27 +30,33 @@ public class Character : MonoBehaviour
     {
         TargetReachedCheck();
         FinishThenMove();
-        EnterBase();
+        EnterBuilding();
+        UpdateHealthBar();
     }
 
-    #region Interaction
-    void EnterBase()
-    {
-        if (PlayerBase.M.RTBCalled == true && !AtBase)
-        {
-            if (CurrentPosition == PlayerBase.M.DoorTile)
-            {
-                transform.position = PlayerBase.M.BaseTile.transform.position;
-                AtBase = true;
-                PlayerBase.M.PlayersAtBase++;
+    #region UI
 
-                if (PlayerBase.M.PlayersAtBase == PlayerBase.M.Players.Count)
-                    PlayerBase.M.AllPlayersAtBase = true;
+    void UpdateHealthBar()
+    {
+        Quaternion rot = Quaternion.LookRotation(CameraMovement.M.Cam.gameObject.transform.position - PlayerUI.transform.position);
+        PlayerUI.transform.rotation = rot * Quaternion.Euler(0, 180, 0);
+        HealthBar.rectTransform.sizeDelta = new Vector2(150 * (Health / 100), HealthBar.rectTransform.sizeDelta.y);
+
+        HealthBar.color = new Color(4 * (1 - (Health / 100)), (Health / 100) * 0.5f, 0);
+    }
+
+    #endregion
+
+    #region Interaction
+    void EnterBuilding()
+    {
+        if (TargetBuilding)
+        {
+            if (CurrentPosition == TargetBuilding.DoorTile)
+            {
+                transform.position = TargetBuilding.Centre.transform.position;
             }
         }
-
-        if(AtBase)
-            transform.position = PlayerBase.M.BaseTile.transform.position;
     }
 
     public void Interact(Interactable Target)
