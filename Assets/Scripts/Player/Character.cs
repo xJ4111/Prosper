@@ -7,14 +7,19 @@ public class Character : MonoBehaviour
 {
     [Header("Stats")]
     public float Health = 100;
+    public float Damage;
+    public float AttackRange;
+    public float AttackSpeed;
+    public float HeadshotChance;
+    protected HealthBar HB;
 
-    [Header("UI Elements")]
-    public Canvas PlayerUI;
-    public Image HealthBar;
+    [Header("Combat")]
+    public bool Attacking;
+    public Character AttackTarget;
 
     [Header("Interaction")]
     public bool Busy;
-    public bool AtBase;
+    public bool Garrisoned;
 
     public EnvironmentTile PriorityTarget;
     public Building TargetBuilding;
@@ -26,26 +31,121 @@ public class Character : MonoBehaviour
     public bool TargetReached;
     public bool Moving;
 
+    private void Start()
+    {
+        UpdateStats();
+        HB = GetComponentInChildren<HealthBar>();
+    }
+
     private void Update()
     {
         TargetReachedCheck();
         FinishThenMove();
         EnterBuilding();
-        UpdateHealthBar();
+        HB.UpdateBar(Health, PlayerBase.M.Max[PlayerBase.M.CombatLevel].Health);
+        Die();
+
+        Combat();
     }
 
-    #region UI
-
-    void UpdateHealthBar()
+    #region Combat
+    void UpdateStats()
     {
-        Quaternion rot = Quaternion.LookRotation(CameraMovement.M.Cam.gameObject.transform.position - PlayerUI.transform.position);
-        PlayerUI.transform.rotation = rot * Quaternion.Euler(0, 180, 0);
-        HealthBar.rectTransform.sizeDelta = new Vector2(150 * (Health / 100), HealthBar.rectTransform.sizeDelta.y);
+        Health = PlayerBase.M.Max[PlayerBase.M.CombatLevel].Health;
+        Damage = PlayerBase.M.Max[PlayerBase.M.CombatLevel].Damage;
+        AttackRange = PlayerBase.M.Max[PlayerBase.M.CombatLevel].AttackRange;
+        AttackSpeed = PlayerBase.M.Max[PlayerBase.M.CombatLevel].AttackSpeed;
+        HeadshotChance = PlayerBase.M.Max[PlayerBase.M.CombatLevel].HeadshotChance;
+    }
 
-        HealthBar.color = new Color(4 * (1 - (Health / 100)), (Health / 100) * 0.5f, 0);
+    void Combat()
+    {
+        if(Zombies.M.AllZombies.Count > 0)
+        {
+            if (!AttackTarget)
+            {
+                AttackTarget = ClosestZombie();
+            }
+
+            if (!Attacking && InRange())
+            {
+                if (AttackTarget)
+                {
+                    Attacking = true;
+                    StartCoroutine(Attack());
+                }
+            }
+        }
+    }
+
+    public IEnumerator Attack()
+    {
+        yield return new WaitForSeconds(1.0f / AttackSpeed);
+
+        if (AttackTarget)
+        {
+            FaceTarget(AttackTarget.transform.position);
+
+            if (AttackTarget.Health - Damage > 0)
+            {
+                AttackTarget.Health -= (int)Damage;
+                StartCoroutine(Attack());
+            }
+            else
+            {
+                AttackTarget.Health -= (int)Damage;
+                Attacking = false;
+                AttackTarget = null;
+            }
+        }
+        else
+        {
+            Attacking = false;
+            AttackTarget = null;
+        }
+    }
+
+    Zombie ClosestZombie()
+    {
+        float dist = float.MaxValue;
+        Zombie closest = null;
+
+        foreach (Zombie z in Zombies.M.AllZombies)
+        {
+            if (Vector3.Distance(transform.position, z.transform.position) < dist)
+            {
+                closest = z;
+                dist = Vector3.Distance(transform.position, z.transform.position);
+            }
+        }
+
+        return closest;
+    }
+
+    bool InRange()
+    {
+        if (AttackTarget)
+            return Vector3.Distance(transform.position, AttackTarget.transform.position) < AttackRange;
+
+        return false;
+    }
+
+    protected virtual void Die()
+    {
+        if (Health <= 0)
+        {
+            PlayerBase.M.Players.Remove(this);
+            Destroy(gameObject);
+        }
+    }
+
+    protected void FaceTarget(Vector3 target)
+    {
+        transform.rotation = Quaternion.LookRotation(target - transform.position, Vector3.up);
     }
 
     #endregion
+
 
     #region Interaction
     void EnterBuilding()

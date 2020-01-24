@@ -21,6 +21,7 @@ public class PlayerBase : MonoBehaviour
     public Building Main;
     public int UpgradeLevel;
     private int buildingCount;
+    private HealthBar HB;
 
     [Header("Player Info")]
     public List<Character> Players;
@@ -31,10 +32,30 @@ public class PlayerBase : MonoBehaviour
 
     public bool RaidOngoing = false;
 
-
     [Header("Player Actions")]
     public Interactable Target;
     public bool RTBCalled;
+
+    [Header("Combat Info")]
+    public Dictionary<int, Stats> Max = new Dictionary<int, Stats>();
+
+    public class Stats
+    {
+        public float Health;
+        public float Damage;
+        public float AttackRange;
+        public float AttackSpeed;
+        public float HeadshotChance;
+
+        public Stats(float hp, float dmg, float ar, float ats, float hc)
+        {
+            Health = hp;
+            Damage = dmg;
+            AttackRange = ar;
+            AttackSpeed = ats;
+            HeadshotChance = hc;
+        }
+    }
 
     void Start()
     {
@@ -42,7 +63,10 @@ public class PlayerBase : MonoBehaviour
         StorageCapacity = 5000;
         AddItem("Rock", 1);
         Main = GetComponent<Building>();
+        HB = GetComponentInChildren<HealthBar>();
+
         UI.M.ButtonSetup();
+        LoadCombatStatsCSV();
     }
 
     private void OnMouseOver()
@@ -53,7 +77,10 @@ public class PlayerBase : MonoBehaviour
         }
     }
 
-
+    private void Update()
+    {
+        HB.UpdateBar(Main.Health, 1000);
+    }
 
     #region Base Info
     public KeyValuePair<string, int> UpgradeInfo(out float CurrentAmount, out bool CanUpgrade)
@@ -121,6 +148,7 @@ public class PlayerBase : MonoBehaviour
             foreach (Character player in Players)
             {
                 player.TargetBuilding = Main;
+                player.Garrisoned = true;
 
                 if (!player.Busy)
                     player.GoTo(Main.DoorTile);
@@ -173,7 +201,7 @@ public class PlayerBase : MonoBehaviour
 
             player.CurrentPosition = temp;
             player.transform.position = temp.Position;
-            player.AtBase = false;
+            player.Garrisoned = false;
         }
 
         UI.M.ToggleBaseUI(false);
@@ -204,7 +232,7 @@ public class PlayerBase : MonoBehaviour
 
         foreach (Character player in M.Players)
         {
-            if(!player.AtBase && !player.Busy)
+            if(!player.Garrisoned && !player.Busy)
             {
                 float distance = Environment.M.Heuristic(player.CurrentPosition, Target);
                 if (distance < lowest)
@@ -243,5 +271,22 @@ public class PlayerBase : MonoBehaviour
                 Inventory.Remove(item);
         }
     }
+    #endregion
+
+    #region Combat Info
+
+    void LoadCombatStatsCSV()
+    {
+        TextAsset data = Resources.Load<TextAsset>("combatstats");
+
+        string[] lines = data.text.Split('\n');
+
+        for (int i = 1; i < lines.Length - 1; i++)
+        {
+            string[] cell = lines[i].Split(',');
+            Max.Add(int.Parse(cell[0]), new Stats(float.Parse(cell[1]), float.Parse(cell[2]), float.Parse(cell[3]), float.Parse(cell[4]), float.Parse(cell[5])));
+        }
+    }
+
     #endregion
 }

@@ -123,8 +123,11 @@ public class Environment : MonoBehaviour
 
         Misc();
         MainBase();
-        ResourceBiomes();
-        Monuments();
+        //ResourceBiomes();
+        //Monuments();
+
+        //Used for zombie spawning
+        FindEdges();
     }
 
     private void SetupConnections()
@@ -533,39 +536,20 @@ public class Environment : MonoBehaviour
         return closest;
     }
 
-    public List<EnvironmentTile> FindEdges(EnvironmentTile Centre)
+    public void FindEdges()
     {
-        List<EnvironmentTile> edges = new List<EnvironmentTile>();
-        int x = 0;
-        int y = 0;
 
         for (int i = 0; i < Size.x; ++i)
         {
             for (int j = 0; j < Size.y; ++j)
             {
-                if (mMap[i][j] == Centre)
+                if (i == 0 || i == Size.x - 1 || j == 0 || j == Size.y - 1)
                 {
-                    x = i;
-                    y = j;
+                    if (mMap[i][j].IsAccessible)
+                        EdgePieces.Add(mMap[i][j]);
                 }
             }
         }
-
-        for (int i = -2; i <= 2; i++)
-        {
-            for (int j = -2; j <= 2; j++)
-            {
-                if (i == -2 || i == 2 || j == -2 || j == 2)
-                {
-                    if (mMap[x + i][y + j].IsAccessible)
-                    {
-                        edges.Add(mMap[x + i][y + j]);
-                    }
-                }
-            }
-        }
-
-        return new List<EnvironmentTile>();
     }
 
     #endregion

@@ -189,17 +189,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a3284738567a147b564d0412a5332f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Health: 0
   Centre: {fileID: 5225831561217036612}
   Dimensions: {x: 2, y: 2, z: 10}
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
-  Name: Launch Site
+  Name: Bandit
   Guarded: 1
-  EnemyLevel: 1000
-  LootType: 'New Teammate: Skinhead Rooney'
+  EnemyLevel: 1
+  LootType: Teir 1 Weapons
   LootTime: 45
-  item: Crossbow
+  item: Revolver
   count: 1
   Timer: {fileID: 7251615201348473477}
   TimerText: {fileID: 287270898282862416}

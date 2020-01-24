@@ -4189,6 +4189,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1503987269}
   m_CullTransparentMesh: 0
+--- !u!1 &1524751434
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1524751435}
+  - component: {fileID: 1524751436}
+  m_Layer: 0
+  m_Name: ZombieManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1524751435
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1524751434}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.685589, y: -10.26292, z: 16.886066}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1524751436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1524751434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e73a08e127c1bc43a52b8855ecb9027, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DefaultZombie: {fileID: 1030334320337571514, guid: 87453f07d71c2cd4d91dd89c109114c5,
+    type: 3}
+  ZombiePrefabs: []
+  ZombieCount: 5
+  AllZombies: []
 --- !u!1 &1574086110
 GameObject:
   m_ObjectHideFlags: 0
@@ -5660,7 +5708,7 @@ MonoBehaviour:
   - {fileID: 7275543289428056872, guid: 5ee10150b40a39c48ae109364660c9af, type: 3}
   - {fileID: 4624508870745565075, guid: 7ad8569620d480845a65cdd8862f74da, type: 3}
   - {fileID: 4624508870745565075, guid: 1e057f7b3203b7147ad56ff5ffd605ef, type: 3}
-  Size: {x: 100, y: 100}
+  Size: {x: 10, y: 10}
   AccessiblePercentage: 1
   AutoParam: 1
   BiomeSize: 5

@@ -55,7 +55,6 @@ public class Interactable : MonoBehaviour
     }
 
     #region Setup
-
     void SetTimerUI()
     {
         GameObject temp = Instantiate(TimerCanvas, gameObject.transform);
