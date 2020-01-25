@@ -5,7 +5,7 @@ using UnityEngine;
 public class Building : MonoBehaviour
 {
     [Header("Stats")]
-    public int Health;
+    public float Health;
 
     [Header("Position")]
     public EnvironmentTile Centre;

@@ -3195,11 +3195,14 @@ MonoBehaviour:
     type: 3}
   CharacterCount: 5
   CharacterStart: {fileID: 561634765}
+  WaveCount: 5
+  ZombieMultiplier: 2.5
   Play: 0
   Sun: {fileID: 705507994}
+  NightCount: 0
   RoundCount: 0
-  RoundLength: 5
-  RoundZombieMultiplier: 2.5
+  CurrentWave: 0
+  RoundLength: 2
   ZombiesSpawned: 0
 --- !u!4 &896303072
 Transform:
@@ -4603,8 +4606,9 @@ MonoBehaviour:
   DefaultZombie: {fileID: 1030334320337571514, guid: 87453f07d71c2cd4d91dd89c109114c5,
     type: 3}
   ZombiePrefabs: []
-  ZombieCount: 5
+  ZombieCount: 10
   AllZombies: []
+  MSX: 0
 --- !u!1 &1574086110
 GameObject:
   m_ObjectHideFlags: 0
@@ -6079,7 +6083,7 @@ MonoBehaviour:
   - {fileID: 4624508870745565075, guid: 3b98c85889a03c84981bc2cb875e22e5, type: 3}
   - {fileID: 4624508870745565075, guid: d375aa949ec231c4ab196d17ebca77e7, type: 3}
   AllBuildings: []
-  Size: {x: 10, y: 10}
+  Size: {x: 20, y: 20}
   AccessiblePercentage: 1
   AutoParam: 1
   BiomeSize: 5

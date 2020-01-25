@@ -128,11 +128,14 @@ public class Environment : MonoBehaviour
         Misc();
         MainBase();
 
-        if(Size.x > 100 && Size.y > 100)
+        if(Size.x >= 100 && Size.y >= 100)
         {
             ResourceBiomes();
             Locations();
         }
+
+        //Used for player spawning
+        SetSpawnPoints();
 
         //Used for zombie spawning
         FindEdges();
@@ -284,6 +287,7 @@ public class Environment : MonoBehaviour
                 tile.Position = new Vector3(position.x + (TileSize / 2), TileHeight, position.z + (TileSize / 2));
                 tile.IsAccessible = isAccessible;
                 tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
+                tile.Index = new Vector2Int(x, y);
                 mMap[x][y] = tile;
                 mAll.Add(tile);
 
@@ -324,6 +328,8 @@ public class Environment : MonoBehaviour
         else
             tile.gameObject.name = string.Format("Tile({0},{1})", x, y);
 
+        tile.Index = new Vector2Int(x, y);
+
         mMap[x][y] = tile;
         mAll.Add(tile);
 
@@ -357,34 +363,12 @@ public class Environment : MonoBehaviour
                 }
             }
         }
-        
-        //Set Spawn points
-        for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
-        {
-            for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
-            {
-                if (Mathf.Abs(i) == (b.Dimensions.x + 1) || Mathf.Abs(j) == (b.Dimensions.y + 1))
-                {
-                    building.SpawnPoints.Add(mMap[x + i][y + j]);
-                }
-            }
-        }
-
         return building;
     }
 
     public void Clear(EnvironmentTile tile)
     {
-        for (int x = 0; x < Size.x; ++x)
-        {
-            for (int y = 0; y < Size.y; ++y)
-            {
-                if(mMap[x][y] == tile)
-                {
-                    SpawnTile(AccessibleTiles[0], x, y, true);
-                }
-            }
-        }
+        SpawnTile(AccessibleTiles[0], tile.Index.x, tile.Index.y, true);
     }
     #endregion
 
@@ -520,6 +504,7 @@ public class Environment : MonoBehaviour
     #endregion
 
     #region Tools
+
     bool InRange(float x, float y)
     {
         return x < Size.x && x >= 0 && y < Size.y && y >= 0;
@@ -574,6 +559,28 @@ public class Environment : MonoBehaviour
                 {
                     if (mMap[i][j].IsAccessible)
                         EdgePieces.Add(mMap[i][j]);
+                }
+            }
+        }
+    }
+
+    void SetSpawnPoints()
+    {
+        //Set Spawn points
+        foreach(Building b in AllBuildings)
+        {
+            if(b.gameObject.activeInHierarchy)
+            {
+                for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
+                {
+                    for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
+                    {
+                        if (!(i == 0 && j == 0))
+                        {
+                            if(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j].IsAccessible)
+                                b.SpawnPoints.Add(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j]);
+                        }
+                    }
                 }
             }
         }

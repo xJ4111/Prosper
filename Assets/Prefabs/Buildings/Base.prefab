@@ -278,7 +278,7 @@ MonoBehaviour:
   UpgradeLevel: 0
   Players: []
   StorageCapacity: 0
-  CombatLevel: 1
+  CombatLevel: 3
   ToolLevel: 0
   RaidOngoing: 0
   Target: {fileID: 0}

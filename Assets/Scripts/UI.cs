@@ -72,21 +72,20 @@ public class UI : MonoBehaviour
     }
 
     #region Round Info
-
     public void UpdateRoundInfo(float timeToRoundStart)
     {
-        RoundTitleText.text = "Round " + Game.M.RoundCount;
+        
 
         if(timeToRoundStart >= 0)
-            RoundInfoText.text = "Sunset Imminent: " + timeToRoundStart.ToString("F0") + "s";
+        {
+            RoundTitleText.text = "Day " + Game.M.NightCount;
+            RoundInfoText.text = "Sunset Imminent | Time Remaining: " + GameTime(timeToRoundStart, true);
+        }
         else if (timeToRoundStart < 0)
-            RoundInfoText.text = "Round Started! Zombies Incoming";
-
-
-        if (!Game.M.ZombiesSpawned)
-            RoundInfoText.text += " | Zombie Count: " + (Game.M.RoundCount * Game.M.RoundZombieMultiplier);
-        else
-            RoundInfoText.text += " | Zombie Count: " + Zombies.M.AllZombies.Count;
+        {
+            RoundTitleText.text = "Night " + Game.M.NightCount + " | Wave " + Game.M.CurrentWave + "/" + Game.M.WaveCount;
+            RoundInfoText.text = "Zombies Incoming | " + Zombies.M.AllZombies.Count + "/" + (int)(Game.M.RoundCount * Game.M.ZombieMultiplier);
+        }
     }
 
     #endregion
@@ -243,4 +242,31 @@ public class UI : MonoBehaviour
         return info;
     }
     #endregion
+
+    public string GameTime(float time, bool full)
+    {
+        int hours = (int)(time / 5);
+        float mins = 60 * ((time / 5) % 1);
+
+        if(hours > 0)
+        {
+            if (full)
+                return hours + " Hours " + mins.ToString("F0") + " Mins";
+            else
+            {
+                return hours + "." + mins.ToString("F0") + "hrs";
+            }
+        }
+        else
+        {
+            if (full)
+                return mins.ToString("F0") + " Mins";
+            else
+            {
+                return mins.ToString("F0") + "m";
+            }
+        }
+
+
+    }
 }

@@ -304,7 +304,7 @@ MonoBehaviour:
   Health: 100
   Damage: 10
   AttackRange: 15
-  AttackSpeed: 0.3
+  AttackSpeed: 0.5
   HeadshotChance: 0
   Attacking: 0
   AttackTarget: {fileID: 0}

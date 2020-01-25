@@ -11,9 +11,12 @@ public class Character : MonoBehaviour
     public float AttackRange;
     public float AttackSpeed;
     public float HeadshotChance;
+    public float SnapTime;
+
     protected HealthBar HB;
 
     [Header("Combat")]
+    public bool Searching;
     public bool Attacking;
     public Character AttackTarget;
 
@@ -25,7 +28,7 @@ public class Character : MonoBehaviour
     public Building TargetBuilding;
 
     [Header("Pathfinding")]
-    [SerializeField] private float SingleNodeMoveTime = 0.5f;
+    public float SingleNodeMoveTime = 0.5f;
     public EnvironmentTile CurrentPosition { get; set; }
     public EnvironmentTile CurrentTarget;
     public bool TargetReached;
@@ -62,9 +65,9 @@ public class Character : MonoBehaviour
     {
         if(Zombies.M.AllZombies.Count > 0)
         {
-            if (!AttackTarget)
+            if (!AttackTarget && !Searching)
             {
-                AttackTarget = ClosestZombie();
+                StartCoroutine(NewTarget());
             }
 
             if (!Attacking && InRange())
@@ -78,30 +81,48 @@ public class Character : MonoBehaviour
         }
     }
 
+    IEnumerator NewTarget()
+    {
+        Searching = true;
+        yield return new WaitForSeconds(SnapTime);
+        AttackTarget = ClosestZombie();
+        Searching = false;
+    }
+
     public IEnumerator Attack()
     {
         yield return new WaitForSeconds(1.0f / AttackSpeed);
 
-        if (AttackTarget)
+        if (AttackTarget && InRange())
         {
             FaceTarget(AttackTarget.transform.position);
 
             if (AttackTarget.Health - Damage > 0)
             {
-                AttackTarget.Health -= (int)Damage;
+                if(Random.Range(0,101) < HeadshotChance)
+                    AttackTarget.Health -= (int)(Damage * 2);
+                else
+                    AttackTarget.Health -= (int)(Damage);
+
                 StartCoroutine(Attack());
             }
             else
             {
-                AttackTarget.Health -= (int)Damage;
+                if (Random.Range(0, 101) < HeadshotChance)
+                    AttackTarget.Health -= (int)(Damage * 2);
+                else
+                    AttackTarget.Health -= (int)(Damage);
+
                 Attacking = false;
                 AttackTarget = null;
+                Searching = false;
             }
         }
         else
         {
             Attacking = false;
             AttackTarget = null;
+            Searching = false;
         }
     }
 
@@ -145,7 +166,6 @@ public class Character : MonoBehaviour
     }
 
     #endregion
-
 
     #region Interaction
     void EnterBuilding()

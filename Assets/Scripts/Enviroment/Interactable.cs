@@ -84,7 +84,7 @@ public class Interactable : MonoBehaviour
 
             float temp = (startTime + interactTime) - Time.time;
 
-            TimerText.text = temp.ToString("F0") + "s";
+            TimerText.text = UI.M.GameTime(temp, false);
             TimerBar.rectTransform.sizeDelta = new Vector2(Timer.GetComponent<RectTransform>().sizeDelta.x * (temp / interactTime), TimerBar.rectTransform.sizeDelta.y);
         }
     }

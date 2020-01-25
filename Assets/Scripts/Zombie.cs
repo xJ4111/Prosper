@@ -5,41 +5,41 @@ using UnityEngine;
 public class Zombie : Character
 {
     public Character TargetPlayer;
+    private float MaxHealth = 100;
 
     // Start is called before the first frame update
     void Start()
     {
         HB = GetComponentInChildren<HealthBar>();
+        Variant();
     }
 
     // Update is called once per frame
     void Update()
     {
         ZombieAttack();
-        HB.UpdateBar(Health, 100);
+        HB.UpdateBar(Health, MaxHealth);
         Die();
     }
 
     void ZombieAttack()
     {
-        Debug.Log(InRange());
-
         if(!TargetPlayer && !TargetBuilding)
         {
             Hunt();
         }
 
-        if (!Attacking && InRange())
+        if(!Attacking && InRange())
         {
-            if (TargetPlayer)
+            Attacking = true;
+
+            if(PlayerBase.M.RTBCalled)
             {
-                Attacking = true;
-                StartCoroutine(AttackPlayer());
-            }
-            else if (TargetBuilding)
-            {
-                Attacking = true;
                 StartCoroutine(AttackBuilding());
+            }
+            else
+            {
+                StartCoroutine(AttackPlayer());
             }
         }
     }
@@ -56,18 +56,20 @@ public class Zombie : Character
     #region Target Finding
     void Hunt()
     {
-        Debug.Log("Hunting...");
-
-        if (ClosestPlayer())
+        if (PlayerBase.M.RTBCalled)
         {
-            TargetPlayer = ClosestPlayer();
-            List<EnvironmentTile> Route = Environment.M.Solve(CurrentPosition, TargetPlayer.CurrentPosition);
-            Route.RemoveAt(Route.Count - 1);
-            GoTo(Route);
+            GoTo(ClosestBuilding());
         }
         else
         {
-            GoTo(ClosestBuilding());
+            TargetPlayer = ClosestPlayer();
+            if(TargetPlayer)
+            {
+                List<EnvironmentTile> Route = Environment.M.Solve(CurrentPosition, TargetPlayer.CurrentPosition);
+                Route.RemoveAt(Route.Count - 1);
+                GoTo(Route);
+            }
+
         }
     }
 
@@ -129,8 +131,7 @@ public class Zombie : Character
     {
         yield return new WaitForSeconds(1.0f / AttackSpeed);
 
-
-        if (TargetPlayer && !TargetPlayer.Garrisoned)
+        if (TargetPlayer)
         {
             FaceTarget(TargetPlayer.transform.position);
 
@@ -155,7 +156,6 @@ public class Zombie : Character
 
     public IEnumerator AttackBuilding()
     {
-        Debug.Log("Waiting");
         yield return new WaitForSeconds(1.0f / AttackSpeed);
 
         if (TargetBuilding)
@@ -164,7 +164,6 @@ public class Zombie : Character
 
             if (TargetBuilding.Health - Damage > 0)
             {
-                Debug.Log("Attacking");
                 TargetBuilding.Health -= (int)Damage;
                 StartCoroutine(AttackBuilding());
             }
@@ -175,6 +174,16 @@ public class Zombie : Character
                 TargetBuilding = null;
             }
         }
+    }
+
+    void Variant()
+    {
+        float Multiplier = Random.Range(0.75f, 1.2f);
+        SingleNodeMoveTime *= Multiplier * 2;
+        MaxHealth *= Multiplier * 4;
+        Health = MaxHealth;
+
+        transform.localScale = new Vector3(Multiplier, Multiplier, Multiplier);
     }
     #endregion
 

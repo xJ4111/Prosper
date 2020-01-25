@@ -34,7 +34,7 @@ public class PlayerBase : MonoBehaviour
 
     [Header("Player Actions")]
     public Interactable Target;
-    public bool RTBCalled;
+    public bool RTBCalled = false;
 
     [Header("Combat Info")]
     public Dictionary<int, Stats> Max = new Dictionary<int, Stats>();
@@ -64,6 +64,7 @@ public class PlayerBase : MonoBehaviour
         AddItem("Rock", 1);
         Main = GetComponent<Building>();
         HB = GetComponentInChildren<HealthBar>();
+        RTBCalled = false;
 
         UI.M.ButtonSetup();
         LoadCombatStatsCSV();
@@ -73,7 +74,14 @@ public class PlayerBase : MonoBehaviour
     {
         if(Input.GetMouseButtonUp(0))
         {
-            UI.M.ToggleBaseUI(true);
+            if(!Game.M.ZombiesSpawned)
+            {
+                UI.M.ToggleBaseUI(true);
+            }
+            else
+            {
+                Debug.Log("Players are defending the base");
+            }
         }
     }
 
@@ -139,6 +147,72 @@ public class PlayerBase : MonoBehaviour
     #endregion
 
     #region Base Actions
+    public void Defend()
+    {
+        UI.M.ToggleBaseUI(false);
+
+        /*
+        if (WindowFloor && !rtbcalled)
+            RTB();
+        else
+        */
+
+        if(RTBCalled)
+        {
+            foreach(Character player in Players)
+            {
+                player.StopAllCoroutines();
+            }
+
+            Deploy();
+        }
+        else
+        {
+
+            List<EnvironmentTile> used = new List<EnvironmentTile>();
+
+            foreach (Character player in Players)
+            {
+                player.TargetBuilding = null;
+
+                if (!Main.SpawnPoints.Contains(player.CurrentPosition))
+                {
+                    EnvironmentTile temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
+
+                    while (Taken(temp))
+                    {
+                        temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
+                    }
+
+                    if (player.Busy)
+                    {
+                        player.PriorityTarget = temp;
+                    }
+                    else
+                    {
+                        player.GoTo(temp);
+                        player.Busy = true;
+                    }
+                }
+            }
+        }
+    }
+
+    bool Taken(EnvironmentTile spawn)
+    {
+        bool taken = false;
+
+        foreach(Character p in Players)
+        {
+            if (p.CurrentTarget != null && p.CurrentTarget == spawn)
+                taken = true;
+            else if (p.CurrentPosition == spawn)
+                taken = true;
+        }
+
+        return taken;
+    }
+
     public void RTB()
     {
         if(!RaidOngoing)
@@ -164,6 +238,7 @@ public class PlayerBase : MonoBehaviour
         UI.M.ToggleBaseUI(false);
     }
 
+
     public void Heal()
     {
         foreach (Character player in Players)
@@ -185,7 +260,7 @@ public class PlayerBase : MonoBehaviour
         {
             player.TargetBuilding = null;
 
-            EnvironmentTile temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count - 1)];
+            EnvironmentTile temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
 
             if (!used.Contains(temp))
                 used.Add(temp);
@@ -193,7 +268,7 @@ public class PlayerBase : MonoBehaviour
             {
                 while (used.Contains(temp))
                 {
-                    temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count - 1)];
+                    temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
                 }
 
                 used.Add(temp);

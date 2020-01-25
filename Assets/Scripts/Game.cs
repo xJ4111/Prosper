@@ -24,19 +24,26 @@ public class Game : MonoBehaviour
     [SerializeField] private Transform CharacterStart;
     private Character mCharacter;
 
+
+    public int WaveCount = 5;
+    public float ZombieMultiplier = 2.5f;
+
     [Header("Game Loop")]
     public bool Play;
     public Light Sun;
+    [HideInInspector] public int NightCount;
     [HideInInspector] public int RoundCount;
+    [HideInInspector] public int CurrentWave;
     [SerializeField] private float RoundLength;
-    public float RoundZombieMultiplier = 2.5f;
     private float roundStartTime;
     private bool roundStarted;
-    [HideInInspector] public bool ZombiesSpawned;
+    [HideInInspector] public bool ZombiesSpawned = false;
 
     void Start()
     {
         //ShowMenu(true);
+        NightCount = 1;
+        WaveCount = 5;
     }
 
     private void Update()
@@ -57,7 +64,7 @@ public class Game : MonoBehaviour
             List<EnvironmentTile> used = new List<EnvironmentTile>();
             foreach(Character player in PlayerBase.M.Players)
             {
-                EnvironmentTile temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count - 1)];
+                EnvironmentTile temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count)];
 
                 if (!used.Contains(temp))
                     used.Add(temp);
@@ -65,7 +72,7 @@ public class Game : MonoBehaviour
                 {
                     while(used.Contains(temp))
                     {
-                        temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count - 1)];
+                        temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count)];
                     }
 
                     used.Add(temp);
@@ -103,29 +110,38 @@ public class Game : MonoBehaviour
 
     void GameLoop()
     {
-        if(!roundStarted)
-        {
-            NewRound();
-        }
-        else
-        {
-            float roundTime = (roundStartTime + RoundLength) - Time.time;
-            DayNightCycle(roundTime);
+        float roundTime = (roundStartTime + RoundLength) - Time.time;
+        DayNightCycle(roundTime);
 
-            if(roundTime <= 0)
+
+        if (roundTime <= 0)
+        {
+            if(CurrentWave <= WaveCount)
             {
-                if(!ZombiesSpawned)
+                if (!roundStarted)
                 {
-                    SpawnZombies();
+                    NewRound();
                 }
-                else if(ZombiesSpawned && Zombies.M.AllZombies.Count == 0)
+                else
                 {
-                    EndRound();
+                    if (!ZombiesSpawned)
+                    {
+                        SpawnZombies();
+                    }
+                    else if (ZombiesSpawned && Zombies.M.AllZombies.Count == 0)
+                    {
+                        EndRound();
+                    }
                 }
             }
+            else
+            {
+                NightOver();
+            }
 
-            UI.M.UpdateRoundInfo(roundTime);
         }
+
+        UI.M.UpdateRoundInfo(roundTime);
     }
 
     void NewRound()
@@ -133,22 +149,25 @@ public class Game : MonoBehaviour
         if(Play)
         {
             RoundCount++;
-            roundStartTime = Time.time;
+            CurrentWave++;
             roundStarted = true;
             ZombiesSpawned = false;
+
+            Zombies.M.ZombieCount = (int)(RoundCount * ZombieMultiplier);
         }
     }
 
     void DayNightCycle(float time)
     {
-        Debug.Log(time);
+       
     }
 
     void SpawnZombies()
     {
-        Zombies.M.ZombieCount = (int)(RoundCount * RoundZombieMultiplier);
-        Zombies.M.Spawn();
+        PlayerBase.M.Defend();
+
         ZombiesSpawned = true;
+        Zombies.M.Spawn();
     }
 
     void EndRound()
@@ -156,6 +175,17 @@ public class Game : MonoBehaviour
         Debug.Log("Round Over");
         roundStarted = false;
         ZombiesSpawned = false;
+    }
+
+    void NightOver()
+    {
+        NightCount++;
+
+        roundStartTime = Time.time;
+        CurrentWave = 0;
+
+        foreach (Character p in PlayerBase.M.Players)
+            p.Busy = false;
     }
 
     #endregion

@@ -306,9 +306,10 @@ MonoBehaviour:
   AttackRange: 0
   AttackSpeed: 0
   HeadshotChance: 0
+  SnapTime: 0.2
+  Searching: 0
   Attacking: 0
   AttackTarget: {fileID: 0}
-  HB: {fileID: 0}
   Busy: 0
   Garrisoned: 0
   PriorityTarget: {fileID: 0}
