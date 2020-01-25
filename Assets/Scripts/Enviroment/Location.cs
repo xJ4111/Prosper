@@ -99,7 +99,7 @@ public class Location : Building
             
             if(Guarded)
             {
-                if (Random.Range(0, 100) < PlayerBase.M.CombatLevel / EnemyLevel)
+                if (Random.Range(0, 100) < (PlayerBase.M.CombatLevel / EnemyLevel) * 100)
                 {
                     Debug.Log("Raid Successful");
                     Loot();
@@ -118,6 +118,7 @@ public class Location : Building
 
             ExitBuilding();
             raiding = false;
+            PlayerBase.M.RaidOngoing = false;
             startTime = 0;
         }
     }

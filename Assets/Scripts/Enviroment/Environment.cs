@@ -10,7 +10,9 @@ public class Environment : MonoBehaviour
     [SerializeField] private List<EnvironmentTile> AccessibleTiles;
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
     [SerializeField] private List<EnvironmentTile> ResourceTiles;
-    [SerializeField] private List<Building> Buildings;
+    [SerializeField] private List<Building> BuildingTiles;
+
+    [SerializeField] private List<Building> AllBuildings = new List<Building>();
 
     [Header("World Generation Parameters")]
     [SerializeField] private Vector2Int Size;
@@ -26,9 +28,12 @@ public class Environment : MonoBehaviour
     [SerializeField] private int PerBiomeCount;
     [SerializeField] private int SpawnPercent = 30;
 
+    [Header("Location Generation Parameters")]
+    [SerializeField] private int MinBuildingDist = 30;
+
     [Header("Pathfinding")]
     private EnvironmentTile[][] mMap;
-    public List<EnvironmentTile> mAll;
+    private List<EnvironmentTile> mAll;
     private List<EnvironmentTile> mToBeTested;
     private List<EnvironmentTile> mLastSolution;
 
@@ -53,11 +58,10 @@ public class Environment : MonoBehaviour
 
         if (AutoParam)
         {
-            BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 2;
-            PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 2;
+            BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 4;
+            PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 4;
         }
     }
-
 
     private void OnDrawGizmos()
     {
@@ -123,8 +127,8 @@ public class Environment : MonoBehaviour
 
         Misc();
         MainBase();
-        //ResourceBiomes();
-        //Monuments();
+        ResourceBiomes();
+        Locations();
 
         //Used for zombie spawning
         FindEdges();
@@ -168,8 +172,6 @@ public class Environment : MonoBehaviour
             }
         }
     }
-
-
     #endregion
 
     #region Entity Generation
@@ -179,7 +181,7 @@ public class Environment : MonoBehaviour
         int x = (int)centre.x;
         int y = (int)centre.y;
 
-        SpawnBuilding(Buildings[0], x, y);
+        AllBuildings.Add(SpawnBuilding(BuildingTiles[0], x, y));
 
         for (int i = -2; i <= 2; i++)
         {
@@ -240,23 +242,23 @@ public class Environment : MonoBehaviour
         }
     }
 
-    void Monuments()
+    void Locations()
     {
         Vector2Int min = new Vector2Int((int)((Size.x / 2) - (Size.x * 0.2f)), (int)((Size.y / 2) - (Size.y * 0.2f)));
         Vector2Int max = new Vector2Int((int)((Size.x / 2) + (Size.x * 0.2f)), (int)((Size.y / 2) + (Size.y * 0.2f)));
 
-        for(int i = 1; i < Buildings.Count; i++)
+        for(int i = 1; i < BuildingTiles.Count; i++)
         {
             int x = min.x;
             int y = max.y;
 
-            while (!WithinCentre(x, y, min, max))
+            while (!WithinCentre(x, y, min, max) || !FarEnough(x, y))
             {
                 x = Random.Range(10, Size.x - 10);
                 y = Random.Range(10, Size.y - 10);
             }
 
-            SpawnBuilding(Buildings[i], x, y);
+            AllBuildings.Add(SpawnBuilding(BuildingTiles[i], x, y));
         }
     }
 
@@ -296,6 +298,7 @@ public class Environment : MonoBehaviour
     {
 
         mAll.Remove(mMap[x][y]);
+
         Destroy(mMap[x][y].gameObject);
 
         int halfWidth = Size.x / 2;
@@ -323,9 +326,10 @@ public class Environment : MonoBehaviour
         return tile;
     }
 
-    void SpawnBuilding(Building b, int x, int y)
+    Building SpawnBuilding(Building b, int x, int y)
     {
         //Clear the area
+
         for (int i = -b.Dimensions.z; i <= b.Dimensions.z; i++)
         {
             for (int j = -b.Dimensions.z; j <= b.Dimensions.z; j++)
@@ -351,7 +355,6 @@ public class Environment : MonoBehaviour
         }
         
         //Set Spawn points
-
         for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
         {
             for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
@@ -362,6 +365,8 @@ public class Environment : MonoBehaviour
                 }
             }
         }
+
+        return building;
     }
 
     public void Clear(EnvironmentTile tile)
@@ -520,6 +525,25 @@ public class Environment : MonoBehaviour
         return (x < min.x || x > max.x) && (y < min.y || y > max.y);
     }
 
+    bool FarEnough(int x, int y)
+    {
+        float dist = float.MaxValue;
+
+        foreach(Building b in AllBuildings)
+        {
+            float temp = Vector3.Distance(mMap[x][y].Position, b.Centre.transform.position);
+            if (temp < dist)
+                dist = temp;
+        }
+
+        if (dist > MinBuildingDist)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
     public EnvironmentTile ClosestTile(Vector3 pos)
     {
         EnvironmentTile closest = mMap[0][0];
@@ -538,7 +562,6 @@ public class Environment : MonoBehaviour
 
     public void FindEdges()
     {
-
         for (int i = 0; i < Size.x; ++i)
         {
             for (int j = 0; j < Size.y; ++j)
@@ -553,5 +576,4 @@ public class Environment : MonoBehaviour
     }
 
     #endregion
-
 }

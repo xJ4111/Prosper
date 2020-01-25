@@ -5704,17 +5704,20 @@ MonoBehaviour:
   ResourceTiles:
   - {fileID: 4665734947335233729, guid: 84d83d076aecd1044aa0cdd7f246274b, type: 3}
   - {fileID: 428312736237616533, guid: b2937a6c300c0624a8fb7c65bf8b21b3, type: 3}
-  Buildings:
+  BuildingTiles:
   - {fileID: 7275543289428056872, guid: 5ee10150b40a39c48ae109364660c9af, type: 3}
   - {fileID: 4624508870745565075, guid: 7ad8569620d480845a65cdd8862f74da, type: 3}
   - {fileID: 4624508870745565075, guid: 1e057f7b3203b7147ad56ff5ffd605ef, type: 3}
-  Size: {x: 10, y: 10}
+  - {fileID: 4624508870745565075, guid: 3b98c85889a03c84981bc2cb875e22e5, type: 3}
+  - {fileID: 4624508870745565075, guid: d375aa949ec231c4ab196d17ebca77e7, type: 3}
+  AllBuildings: []
+  Size: {x: 100, y: 100}
   AccessiblePercentage: 1
   AutoParam: 1
   BiomeSize: 5
   PerBiomeCount: 5
-  SpawnPercent: 15
-  mAll: []
+  SpawnPercent: 30
+  MinBuildingDist: 250
   StartPos: []
   EdgePieces: []
 --- !u!4 &2083344931
@@ -5762,6 +5765,11 @@ PrefabInstance:
         type: 3}
       propertyPath: field of view
       value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 9101209637923211088, guid: b5e5f47c78e316f49abb13b8ddfbd546,
+        type: 3}
+      propertyPath: far clip plane
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 9101209639620165238, guid: b5e5f47c78e316f49abb13b8ddfbd546,
         type: 3}

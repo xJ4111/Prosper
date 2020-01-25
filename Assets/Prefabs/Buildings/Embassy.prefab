@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 7093103895150171822}
   - component: {fileID: 4857228171954001596}
   m_Layer: 0
-  m_Name: Gas Station
+  m_Name: Embassy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
