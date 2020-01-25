@@ -198,7 +198,7 @@ MonoBehaviour:
   Name: Gas Station
   Guarded: 0
   EnemyLevel: 0
-  LootType: Food & Tools
+  LootType: Mid Teir Gear
   LootTime: 30
   item: Metal
   count: 1000

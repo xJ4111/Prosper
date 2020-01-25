@@ -23,6 +23,11 @@ public class UI : MonoBehaviour
     [SerializeField] private GameObject Menu;
     [SerializeField] private GameObject HUD;
 
+    [Header("Round Info")]
+    [SerializeField] private GameObject RoundInfoPanel;
+    [SerializeField] private TextMeshProUGUI RoundTitleText;
+    [SerializeField] private TextMeshProUGUI RoundInfoText;
+
     [Header("Interaction UI")]
     [SerializeField] private GameObject Interact;
     [SerializeField] private TextMeshProUGUI InteractText;
@@ -65,6 +70,26 @@ public class UI : MonoBehaviour
         Menu.SetActive(show);
         HUD.SetActive(!show);
     }
+
+    #region Round Info
+
+    public void UpdateRoundInfo(float timeToRoundStart)
+    {
+        RoundTitleText.text = "Round " + Game.M.RoundCount;
+
+        if(timeToRoundStart >= 0)
+            RoundInfoText.text = "Sunset Imminent: " + timeToRoundStart.ToString("F0") + "s";
+        else if (timeToRoundStart < 0)
+            RoundInfoText.text = "Round Started! Zombies Incoming";
+
+
+        if (!Game.M.ZombiesSpawned)
+            RoundInfoText.text += " | Zombie Count: " + (Game.M.RoundCount * Game.M.RoundZombieMultiplier);
+        else
+            RoundInfoText.text += " | Zombie Count: " + Zombies.M.AllZombies.Count;
+    }
+
+    #endregion
 
     #region Interaction
 

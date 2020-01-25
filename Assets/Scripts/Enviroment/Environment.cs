@@ -127,8 +127,12 @@ public class Environment : MonoBehaviour
 
         Misc();
         MainBase();
-        ResourceBiomes();
-        Locations();
+
+        if(Size.x > 100 && Size.y > 100)
+        {
+            ResourceBiomes();
+            Locations();
+        }
 
         //Used for zombie spawning
         FindEdges();

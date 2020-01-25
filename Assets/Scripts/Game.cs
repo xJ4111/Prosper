@@ -23,9 +23,25 @@ public class Game : MonoBehaviour
     [SerializeField] private int CharacterCount;
     [SerializeField] private Transform CharacterStart;
     private Character mCharacter;
+
+    [Header("Game Loop")]
+    public bool Play;
+    public Light Sun;
+    [HideInInspector] public int RoundCount;
+    [SerializeField] private float RoundLength;
+    public float RoundZombieMultiplier = 2.5f;
+    private float roundStartTime;
+    private bool roundStarted;
+    [HideInInspector] public bool ZombiesSpawned;
+
     void Start()
     {
         //ShowMenu(true);
+    }
+
+    private void Update()
+    {
+        GameLoop();
     }
 
     #region Game Initialisation
@@ -72,9 +88,77 @@ public class Game : MonoBehaviour
         {
             PlayerBase.M.Players.Add(Instantiate(Character, CharacterStart));
         }
+
+        GameStart();
     }
     #endregion
 
+    #region Game Loop
+
+    void GameStart()
+    {
+        Sun.intensity = 1;
+        Play = true;
+    }
+
+    void GameLoop()
+    {
+        if(!roundStarted)
+        {
+            NewRound();
+        }
+        else
+        {
+            float roundTime = (roundStartTime + RoundLength) - Time.time;
+            DayNightCycle(roundTime);
+
+            if(roundTime <= 0)
+            {
+                if(!ZombiesSpawned)
+                {
+                    SpawnZombies();
+                }
+                else if(ZombiesSpawned && Zombies.M.AllZombies.Count == 0)
+                {
+                    EndRound();
+                }
+            }
+
+            UI.M.UpdateRoundInfo(roundTime);
+        }
+    }
+
+    void NewRound()
+    {
+        if(Play)
+        {
+            RoundCount++;
+            roundStartTime = Time.time;
+            roundStarted = true;
+            ZombiesSpawned = false;
+        }
+    }
+
+    void DayNightCycle(float time)
+    {
+        Debug.Log(time);
+    }
+
+    void SpawnZombies()
+    {
+        Zombies.M.ZombieCount = (int)(RoundCount * RoundZombieMultiplier);
+        Zombies.M.Spawn();
+        ZombiesSpawned = true;
+    }
+
+    void EndRound()
+    {
+        Debug.Log("Round Over");
+        roundStarted = false;
+        ZombiesSpawned = false;
+    }
+
+    #endregion
     public void Exit()
     {
 #if !UNITY_EDITOR

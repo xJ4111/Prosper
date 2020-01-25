@@ -197,10 +197,10 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
-  Name: Bandit
+  Name: Bandit Camp
   Guarded: 1
   EnemyLevel: 1
-  LootType: Teir 1 Weapons
+  LootType: Low Teir Gear, Metal, Food
   LootTime: 45
   item: Revolver
   count: 1

@@ -304,11 +304,10 @@ MonoBehaviour:
   Health: 100
   Damage: 10
   AttackRange: 15
-  AttackSpeed: 1.5
+  AttackSpeed: 0.3
   HeadshotChance: 0
   Attacking: 0
   AttackTarget: {fileID: 0}
-  HB: {fileID: 0}
   Busy: 0
   Garrisoned: 0
   PriorityTarget: {fileID: 0}
