@@ -56,7 +56,7 @@ public class Zombie : Character
         float dist = float.MaxValue;
         EnvironmentTile closest = null;
 
-        foreach (EnvironmentTile tile in PlayerBase.M.Main.SpawnPoints)
+        foreach (EnvironmentTile tile in PlayerBase.M.Main.AttackTiles)
         {
             if(tile)
             {

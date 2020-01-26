@@ -27,7 +27,7 @@ Transform:
   m_LocalPosition: {x: 15, y: 0, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 9008173214108003822}
+  - {fileID: 4977699753435534906}
   m_Father: {fileID: 6176258252531056633}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -136,7 +136,7 @@ Transform:
   m_LocalPosition: {x: 22.5, y: 0, z: -7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8430132682868127136}
+  - {fileID: 5542518546812653172}
   m_Father: {fileID: 6176258252531056633}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -175,7 +175,7 @@ Transform:
   m_Children:
   - {fileID: 7649103743035807769}
   - {fileID: 3825997189747067669}
-  - {fileID: 713565088719928438}
+  - {fileID: 2188895478561326506}
   - {fileID: 6176258252531056633}
   - {fileID: 7506329385603676133}
   - {fileID: 9107044084605188350}
@@ -262,16 +262,18 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
-  DefendPointsParent: {fileID: 0}
+  AttackTiles: []
+  DefendPointsParent: {fileID: 5635030147632231959}
   DefendPoints: []
   Name: Police Station
   Guarded: 1
-  EnemyLevel: 2
-  LootType: High Teir Gear
+  EnemyLevel: 3
+  LootType: High Teir
   LootTime: 30
-  Timer: {fileID: 7251615201348473477}
-  TimerText: {fileID: 287270898282862416}
-  TimerBar: {fileID: 4276958252201435648}
+  Timer: {fileID: 2188895478561326502}
+  TimerText: {fileID: 2188895478561326364}
+  TimerBar: {fileID: 2188895478561326342}
+  raided: 0
 --- !u!65 &7093103895150171822
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -296,8 +298,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 49.904015, y: 62.597214, z: 50.124138}
-  m_Center: {x: 5.349888, y: 31.298607, z: 5.440857}
+  m_Size: {x: 52.303543, y: 37.063602, z: 53.479515}
+  m_Center: {x: 5.2589417, y: 18.531801, z: 4.8189926}
 --- !u!1 &5635030147632231959
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,7 +327,7 @@ Transform:
   m_LocalPosition: {x: -6.11, y: 26.5, z: 12.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 3299973153760739919}
+  - {fileID: 1575413638518782363}
   - {fileID: 5892425228457814960}
   - {fileID: 8003124071400010249}
   - {fileID: 7352146353752512597}
@@ -360,7 +362,7 @@ Transform:
   m_LocalPosition: {x: 15, y: 0, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 3717124354585841437}
+  - {fileID: 829439317075129545}
   m_Father: {fileID: 6176258252531056633}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -391,7 +393,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2427414897379177512}
+  - {fileID: 1853454168028434428}
   m_Father: {fileID: 6176258252531056633}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -494,7 +496,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &3717124354585841437 stripped
+--- !u!4 &829439317075129545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -569,7 +571,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &3299973153760739919 stripped
+--- !u!4 &1575413638518782363 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -644,7 +646,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &2427414897379177512 stripped
+--- !u!4 &1853454168028434428 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -809,7 +811,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f21a49471ded9b34e94ea77cad84cb03, type: 3}
---- !u!114 &4276958252201435648 stripped
+--- !u!114 &2188895478561326342 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2682537933113603477, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
@@ -821,7 +823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &287270898282862416 stripped
+--- !u!114 &2188895478561326364 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2133601811396706501, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
@@ -833,13 +835,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!223 &7251615201348473477 stripped
+--- !u!223 &2188895478561326502 stripped
 Canvas:
   m_CorrespondingSourceObject: {fileID: 8845752799718901008, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
   m_PrefabInstance: {fileID: 2188895478561331093}
   m_PrefabAsset: {fileID: 0}
---- !u!224 &713565088719928438 stripped
+--- !u!224 &2188895478561326506 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
@@ -994,7 +996,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &9008173214108003822 stripped
+--- !u!4 &4977699753435534906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -1069,7 +1071,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &8430132682868127136 stripped
+--- !u!4 &5542518546812653172 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}

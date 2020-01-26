@@ -14,6 +14,7 @@ public class Building : MonoBehaviour
     public GameObject DoorFront;
     public EnvironmentTile DoorTile;
     public List<EnvironmentTile> SpawnPoints = new List<EnvironmentTile>();
+    public List<EnvironmentTile> AttackTiles = new List<EnvironmentTile>();
 
     public GameObject DefendPointsParent;
     [HideInInspector] public Transform[] DefendPoints;
@@ -22,7 +23,8 @@ public class Building : MonoBehaviour
     void Start()
     {
         Centre = GetComponent<EnvironmentTile>();
-        DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
+        if(DoorFront)
+            DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
 
         if (DefendPointsParent)
         {

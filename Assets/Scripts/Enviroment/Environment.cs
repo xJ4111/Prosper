@@ -11,6 +11,7 @@ public class Environment : MonoBehaviour
     [SerializeField] private List<EnvironmentTile> InaccessibleTiles;
     [SerializeField] private List<EnvironmentTile> ResourceTiles;
     [SerializeField] private List<Building> BuildingTiles;
+    [SerializeField] private List<Building> AddOnTiles;
 
     public List<Building> AllBuildings = new List<Building>();
 
@@ -304,7 +305,6 @@ public class Environment : MonoBehaviour
     #region Entity Spawning
     EnvironmentTile SpawnTile(EnvironmentTile prefab, int x, int y, bool access)
     {
-
         mAll.Remove(mMap[x][y]);
 
         Destroy(mMap[x][y].gameObject);
@@ -339,7 +339,6 @@ public class Environment : MonoBehaviour
     Building SpawnBuilding(Building b, int x, int y)
     {
         //Clear the area
-
         for (int i = -b.Dimensions.z; i <= b.Dimensions.z; i++)
         {
             for (int j = -b.Dimensions.z; j <= b.Dimensions.z; j++)
@@ -351,6 +350,7 @@ public class Environment : MonoBehaviour
         //Spawn the building
         Building building =  SpawnTile(b.Centre, x, y, false).GetComponent<Building>();
         building.SpawnPoints.Clear();
+        EdgeTiles(building);
 
         //Block the area the building covers
         for (int i = -b.Dimensions.x; i <= b.Dimensions.x; i++)
@@ -567,23 +567,46 @@ public class Environment : MonoBehaviour
     void SetSpawnPoints()
     {
         //Set Spawn points
-        foreach(Building b in AllBuildings)
+        foreach (Building b in AllBuildings)
         {
-            if(b.gameObject.activeInHierarchy)
+            for(int i = -b.Dimensions.x; i <= b.Dimensions.x; i++)
             {
-                for (int i = -(b.Dimensions.x + 1); i <= (b.Dimensions.x + 1); i++)
+                for (int j = -b.Dimensions.y - 1; j >= -b.Dimensions.y - 3; j--)
                 {
-                    for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
-                    {
-                        if (!(i == 0 && j == 0))
-                        {
-                            if(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j].IsAccessible)
-                                b.SpawnPoints.Add(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j]);
-                        }
-                    }
+                    b.SpawnPoints.Add(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j]);
                 }
             }
         }
+    }
+
+    public void EdgeTiles(Building b)
+    {
+        //Surrounding tiles that are accessible, usually used for zombie attack target positions
+        for (int i = -(b.Dimensions.x + 1); i <= b.Dimensions.x + 1; i++)
+        {
+            for (int j = -(b.Dimensions.y + 1); j <= (b.Dimensions.y + 1); j++)
+            {
+                if (mMap[b.Centre.Index.x + i][b.Centre.Index.y + j].IsAccessible)
+                    b.AttackTiles.Add(mMap[b.Centre.Index.x + i][b.Centre.Index.y + j]);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Runtime Spawning
+
+    public void SpawnWorkshop()
+    {
+       PlayerBase.M.Buildings.Add(SpawnBuilding(AddOnTiles[0], PlayerBase.M.Main.Centre.Index.x - 2, PlayerBase.M.Main.Centre.Index.y));
+    }
+    public void SpawnFarm()
+    {
+        SpawnBuilding(AddOnTiles[1], PlayerBase.M.Main.Centre.Index.x + 2, PlayerBase.M.Main.Centre.Index.y);
+    }
+    public void SpawnRadioStation()
+    {
+        SpawnBuilding(AddOnTiles[2], PlayerBase.M.Main.Centre.Index.x, PlayerBase.M.Main.Centre.Index.y + 2);
     }
 
     #endregion

@@ -20,6 +20,7 @@ public class UI : MonoBehaviour
     }
 
     [Header("Main Menu")]
+    [SerializeField] private GameObject Canvas;
     [SerializeField] private GameObject Menu;
     [SerializeField] private GameObject HUD;
 
@@ -27,6 +28,7 @@ public class UI : MonoBehaviour
     [SerializeField] private GameObject RoundInfoPanel;
     [SerializeField] private TextMeshProUGUI RoundTitleText;
     [SerializeField] private TextMeshProUGUI RoundInfoText;
+    [SerializeField] private TextMeshProUGUI CombatLevelText;
 
     [Header("Interaction UI")]
     [SerializeField] private GameObject Interact;
@@ -46,6 +48,7 @@ public class UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI RaidTitle;
     [SerializeField] private TextMeshProUGUI RaidInfo;
     [SerializeField] private Button RaidButton;
+    [SerializeField] private Button RaidCancel;
 
     [Header("Research UI")]
     public GameObject ResearchPanel;
@@ -70,6 +73,9 @@ public class UI : MonoBehaviour
     public GameObject BuildPanel;
     public Button[] BuildButtons;
 
+    [Header("Tooltip UI")]
+    public GameObject TooltipPrebaf;
+
     private void Start()
     {
         buttons = new List<Button>();
@@ -87,6 +93,12 @@ public class UI : MonoBehaviour
 
         BaseUIPanel.SetActive(false);
         SetupResearchPanel();
+    }
+
+    private void Update()
+    {
+        if(CombatLevelText.gameObject.activeInHierarchy)
+            CombatLevelText.text = "Combat Level: " + PlayerBase.M.CombatLevel;
     }
 
     public void ToggleMenu(bool show)
@@ -172,7 +184,11 @@ public class UI : MonoBehaviour
         buttons[4].onClick.AddListener(() => PlayerBase.M.Deploy());
         buttons[4].onClick.AddListener(() => BaseActionUpdate());
 
+        buttons[5].onClick.AddListener(() => ToggleBaseUI(false));
+
         RTBButton.onClick.AddListener(() => PlayerBase.M.RTB());
+        RaidCancel.onClick.AddListener(() => ToggleRaidUI());
+        RaidCancel.onClick.AddListener(() => ToggleActionPanel(true));
     }
 
     void BaseActionUpdate()
@@ -396,16 +412,13 @@ public class UI : MonoBehaviour
 
     void UpdateBuildPanel()
     {
-        if(!PlayerBase.M.Built[0] && PlayerBase.M.Query("Food") >= 150)
+
+        if (!PlayerBase.M.Built[0] && PlayerBase.M.Query("Food") >= 150)
         {
             BuildButtons[0].enabled = true;
             BuildButtons[0].onClick.RemoveAllListeners();
             BuildButtons[0].onClick.AddListener(() => PlayerBase.M.BuildFarm());
-        }
-        else if (PlayerBase.M.Built[0])
-        {
-            BuildButtons[0].enabled = false;
-            BuildButtons[0].GetComponent<TextMeshProUGUI>().text = "Built";
+            BuildButtons[0].onClick.AddListener(() => UpdateBuildPanel());
         }
         else
         {
@@ -417,11 +430,7 @@ public class UI : MonoBehaviour
             BuildButtons[1].enabled = true;
             BuildButtons[1].onClick.RemoveAllListeners();
             BuildButtons[1].onClick.AddListener(() => PlayerBase.M.BuildWorkshop());
-        }
-        else if (PlayerBase.M.Built[2])
-        {
-            BuildButtons[1].enabled = false;
-            BuildButtons[1].GetComponent<TextMeshProUGUI>().text = "Built";
+            BuildButtons[1].onClick.AddListener(() => UpdateBuildPanel());
         }
         else
         {
@@ -433,20 +442,33 @@ public class UI : MonoBehaviour
             BuildButtons[2].enabled = true;
             BuildButtons[2].onClick.RemoveAllListeners();
             BuildButtons[2].onClick.AddListener(() => PlayerBase.M.BuildRadioStation());
-        }
-        else if(PlayerBase.M.Built[2])
-        {
-            BuildButtons[2].enabled = false;
-            BuildButtons[2].GetComponent<TextMeshProUGUI>().text = "Built";
+            BuildButtons[2].onClick.AddListener(() => UpdateBuildPanel());
         }
         else
         {
             BuildButtons[2].enabled = false;
         }
 
+        for (int i = 0; i < 3; i++)
+        {
+            if (PlayerBase.M.Built[i])
+                BuildButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = "Built";
+        }
+
         BuildButtons[3].onClick.RemoveAllListeners();
-        BuildButtons[3].onClick.AddListener(() => ToggleBaseUI(false));
+        BuildButtons[3].onClick.AddListener(() => ToggleBuildPanel(false));
         BuildButtons[3].onClick.AddListener(() => ToggleBaseUI(true));
+    }
+
+    #endregion
+
+    #region Tooltip
+
+    public void Tooltip(string message)
+    {
+        GameObject temp = Instantiate(TooltipPrebaf, Canvas.transform);
+        temp.GetComponentInChildren<TextMeshProUGUI>().text = message;
+        Destroy(temp, 3.0f);
     }
 
     #endregion

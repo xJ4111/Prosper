@@ -195,16 +195,18 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
+  AttackTiles: []
   DefendPointsParent: {fileID: 0}
   DefendPoints: []
   Name: Gas Station
   Guarded: 0
   EnemyLevel: 0
-  LootType: Low Teir Weapons, Scrap, Food
+  LootType: Low Teir
   LootTime: 30
   Timer: {fileID: 7251615201348473477}
   TimerText: {fileID: 287270898282862416}
   TimerBar: {fileID: 4276958252201435648}
+  raided: 0
 --- !u!65 &7093103895150171822
 BoxCollider:
   m_ObjectHideFlags: 0

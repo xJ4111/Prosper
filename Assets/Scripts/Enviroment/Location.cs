@@ -42,13 +42,16 @@ public class Location : Building
         {
             RaidStatus();
         }
+
+        if (DefendPointsParent)
+                DefendPointsParent.SetActive(!raided);
     }
 
     public void InititateRaid()
     {
         if(PlayerBase.M.RaidOngoing)
         {
-            Debug.Log("Already Raiding Elsewhere");
+            UI.M.Tooltip("Already Raiding Elsewhere");
             UI.M.ToggleRaidUI();
         }
         else
@@ -77,7 +80,7 @@ public class Location : Building
             }
             else
             {
-                Debug.Log("No Players Available For Raid");
+                UI.M.Tooltip("No Players Available For Raid");
             }
         }
     }
@@ -106,13 +109,13 @@ public class Location : Building
             {
                 if (Random.Range(0, 100) < SuccessChance())
                 {
-                    Debug.Log("Raid Successful");
+                    UI.M.Tooltip("Raid Successful");
                     Loot();
                     Damage();
                 }
                 else
                 {
-                    Debug.Log("Raid Failed");
+                    UI.M.Tooltip("Raid Failed");
                     Damage();
                 }
             }

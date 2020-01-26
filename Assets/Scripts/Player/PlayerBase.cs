@@ -22,7 +22,7 @@ public class PlayerBase : MonoBehaviour
     private HealthBar HB;
 
     [Header("Building Info")]
-    public int buildingCount;
+    public List<Building> Buildings = new List<Building>();
     public bool[] Built = { false, false, false };
     public float BaseCost = 250;
     public float PerBuildingCost = 100;
@@ -78,25 +78,12 @@ public class PlayerBase : MonoBehaviour
         LoadCombatStatsCSV();
         LoadResearchCosts();
 
-        AddItem("Metal", 1000);
-        AddItem("Scrap", 1000);
-        AddItem("Food", 1000);
-
-        /*
-        AddItem("Wooden Armour", 1);
-        AddItem("Crossbow", 1);
-        AddItem("Leather Armour", 1);
-        AddItem("M1911", 1);
-        AddItem("Kevlar Armour", 1);
-        AddItem("MP5", 1);
-        AddItem("Metal Plate Armour", 1);
-        AddItem("M4A1", 1);
-        */
-
         for(int i = 0; i < Players.Count; i++)
         {
             Players[i].name = "Player " + (i + 1);
         }
+
+        StartCoroutine(UpdateAttackTiles());
     }
 
     private void OnMouseOver()
@@ -109,7 +96,7 @@ public class PlayerBase : MonoBehaviour
             }
             else
             {
-                Debug.Log("Players are defending the base");
+                UI.M.Tooltip("Players are defending the base");
             }
         }
     }
@@ -157,7 +144,7 @@ public class PlayerBase : MonoBehaviour
         }
         else
         {
-            Debug.Log("Ongoing Raid, RTB Unavailable");
+            UI.M.Tooltip("Ongoing Raid, RTB Not Possible");
         }
 
         UI.M.ToggleBaseUI(false);
@@ -189,15 +176,25 @@ public class PlayerBase : MonoBehaviour
     }
     public void BuildFarm()
     {
-        Debug.Log("Farm Built");
+        UI.M.Tooltip("Farm Built");
+        Environment.M.SpawnFarm();
+        Built[0] = true;
+        StartCoroutine(UpdateAttackTiles());
     }
     public void BuildWorkshop()
     {
-        Debug.Log("Workshop Built");
+        UI.M.Tooltip("Workshop Built");
+        Environment.M.SpawnWorkshop();
+        Built[1] = true;
+        StartCoroutine(UpdateAttackTiles());
     }
     public void BuildRadioStation()
     {
-        Debug.Log("Radio Station Built");
+        UI.M.Tooltip("Radio Station Built");
+        Environment.M.SpawnRadioStation();
+        Built[2] = true;
+        StartCoroutine(UpdateAttackTiles());
+        Main.Health = MaxHealth();
     }
 
     public void Deploy()
@@ -212,13 +209,13 @@ public class PlayerBase : MonoBehaviour
     #region Base Info
     public int RepairCost()
     {
-        int cost = (int)(BaseCost + (PerBuildingCost * buildingCount));
+        int cost = (int)(BaseCost + (PerBuildingCost * Buildings.Count));
         return (int)(cost * (Main.Health / MaxHealth()));
     }
 
     public int MaxHealth()
     {
-        return (int)(BaseHealth + (PerBuildingHealth * buildingCount));
+        return (int)(BaseHealth + (PerBuildingHealth * Buildings.Count));
     }
 
     public void CheckHeal(out bool NeedHeal, out bool CanHeal, out int HealCost)
@@ -255,7 +252,7 @@ public class PlayerBase : MonoBehaviour
         }
         else
         {
-            NoPlayerAvailable();
+            UI.M.Tooltip("No Player Available");
             return false;
         }
     }
@@ -281,10 +278,6 @@ public class PlayerBase : MonoBehaviour
         return closest;
     }
 
-    void NoPlayerAvailable()
-    {
-        Debug.Log("No Player Available");
-    }
 
     public void EnterBase(Character player)
     {
@@ -321,6 +314,8 @@ public class PlayerBase : MonoBehaviour
             Inventory[item] += Count;
         else
             Inventory.Add(item, Count);
+
+        UI.M.Tooltip("Found " + Count + " " + item);
     }
 
     public void RemoveItem(string item, int Count)
@@ -353,20 +348,26 @@ public class PlayerBase : MonoBehaviour
             string[] cell = lines[i].Split(',');
             ResearchCosts.Add(cell[0], int.Parse(cell[1]));
         }
-
-        foreach(KeyValuePair<string, int> costs in ResearchCosts)
-        {
-            Debug.Log(costs.Key + " " + costs.Value);
-        }
     }
 
     public bool CheckResearch(string item)
     {
         if(Query(item) != 0)
         {
-            if(Query("Scrap") > ResearchCosts[item])
+            if(Built[1])
             {
-                return true;
+                if (Query("Scrap") > ResearchCosts[item] * 0.85f)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (Query("Scrap") > ResearchCosts[item])
+                {
+                    return true;
+                }
+
             }
         }
 
@@ -375,7 +376,11 @@ public class PlayerBase : MonoBehaviour
 
     public void Research(string item)
     {
-        Inventory["Scrap"] -= ResearchCosts[item];
+        if (Built[1])
+            Inventory["Scrap"] -= (int)(ResearchCosts[item] * 0.85f);
+        else
+            Inventory["Scrap"] -= ResearchCosts[item];
+
         RemoveItem(item, 1);
         AddItem(item + " BP", 1);
 
@@ -449,6 +454,25 @@ public class PlayerBase : MonoBehaviour
             foreach(Character player in Players)
             {
                 player.Health = Max[CombatLevel].Health;
+            }
+        }
+    }
+
+    IEnumerator UpdateAttackTiles()
+    {
+        yield return new WaitForEndOfFrame();
+
+        Main.AttackTiles.Clear();
+        Environment.M.EdgeTiles(Main);
+
+        foreach (Building b in Buildings)
+        {
+            foreach (EnvironmentTile t in b.AttackTiles)
+            {
+                if(!Main.AttackTiles.Contains(t))
+                {
+                    Main.AttackTiles.Add(t);
+                }
             }
         }
     }

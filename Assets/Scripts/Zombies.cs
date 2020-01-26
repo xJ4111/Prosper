@@ -26,20 +26,8 @@ public class Zombies : MonoBehaviour
 
     [Header("Zombie Information")]
     public List<Zombie> AllZombies;
-    public float MSX;//Movement Speed Multiplier
 
-    private void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.I))
-            Spawn();
-    }
-
-    public IEnumerator Spawn()
+    public void Spawn()
     {
         for (int i = 0; i < ZombieCount; i++)
         {
@@ -54,7 +42,5 @@ public class Zombies : MonoBehaviour
             AllZombies.Add(spawned.GetComponent<Zombie>());
             spawned.GetComponent<Character>().CurrentPosition = spawnPos;
         }
-
-        return null;
     }
 }

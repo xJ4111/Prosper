@@ -125,7 +125,7 @@ MonoBehaviour:
   Tile: {fileID: 428312736237616533}
   TargetingPlayer: {fileID: 0}
   Type: Metal
-  Amount: 100
+  Amount: 25
   Interacted: 0
   TimerCanvas: {fileID: 4099297439836439010, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}

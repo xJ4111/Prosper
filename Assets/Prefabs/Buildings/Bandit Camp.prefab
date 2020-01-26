@@ -105,7 +105,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4297865412038191121}
+  - {fileID: 266336420337210309}
   m_Father: {fileID: 3542707163539455998}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -144,7 +144,7 @@ Transform:
   m_Children:
   - {fileID: 7649103743035807769}
   - {fileID: 3825997189747067669}
-  - {fileID: 713565088719928438}
+  - {fileID: 2188895478561326506}
   - {fileID: 3542707163539455998}
   - {fileID: 1645878865693242230}
   - {fileID: 6409348900084848246}
@@ -231,16 +231,18 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
-  DefendPointsParent: {fileID: 0}
+  AttackTiles: []
+  DefendPointsParent: {fileID: 7161267147586187591}
   DefendPoints: []
   Name: Bandit Camp
   Guarded: 1
-  EnemyLevel: 1
-  LootType: Mid Teir Gear, Scrap
+  EnemyLevel: 2
+  LootType: Mid Teir
   LootTime: 45
-  Timer: {fileID: 7251615201348473477}
-  TimerText: {fileID: 287270898282862416}
-  TimerBar: {fileID: 4276958252201435648}
+  Timer: {fileID: 2188895478561326502}
+  TimerText: {fileID: 2188895478561326364}
+  TimerBar: {fileID: 2188895478561326342}
+  raided: 0
 --- !u!65 &7093103895150171822
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -265,8 +267,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 49.904015, y: 62.597214, z: 50.124138}
-  m_Center: {x: 5.349888, y: 31.298607, z: 5.440857}
+  m_Size: {x: 50.798183, y: 40.58805, z: 51.840805}
+  m_Center: {x: 5.204424, y: 20.294025, z: 5.4740295}
 --- !u!1 &4082798898089574018
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,7 +296,7 @@ Transform:
   m_LocalPosition: {x: 15, y: 0, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1134311040258788548}
+  - {fileID: 4011233525379790608}
   m_Father: {fileID: 3542707163539455998}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -325,7 +327,7 @@ Transform:
   m_LocalPosition: {x: 22.5, y: 0, z: -7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 6303725415148466411}
+  - {fileID: 8028922664314538815}
   m_Father: {fileID: 3542707163539455998}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -356,7 +358,7 @@ Transform:
   m_LocalPosition: {x: -6.11, y: 27.07, z: 12.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8412902578961034579}
+  - {fileID: 5537035074710214279}
   - {fileID: 1892217535371584171}
   - {fileID: 6286577023783078856}
   - {fileID: 4546041530588754894}
@@ -421,7 +423,7 @@ Transform:
   m_LocalPosition: {x: 15, y: 0, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8445268672707491110}
+  - {fileID: 5558776055558131442}
   m_Father: {fileID: 3542707163539455998}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -494,7 +496,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &4297865412038191121 stripped
+--- !u!4 &266336420337210309 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -899,19 +901,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f21a49471ded9b34e94ea77cad84cb03, type: 3}
---- !u!224 &713565088719928438 stripped
+--- !u!224 &2188895478561326506 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
   m_PrefabInstance: {fileID: 2188895478561331093}
   m_PrefabAsset: {fileID: 0}
---- !u!223 &7251615201348473477 stripped
+--- !u!223 &2188895478561326502 stripped
 Canvas:
   m_CorrespondingSourceObject: {fileID: 8845752799718901008, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
   m_PrefabInstance: {fileID: 2188895478561331093}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &287270898282862416 stripped
+--- !u!114 &2188895478561326364 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2133601811396706501, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
@@ -923,7 +925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4276958252201435648 stripped
+--- !u!114 &2188895478561326342 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2682537933113603477, guid: f21a49471ded9b34e94ea77cad84cb03,
     type: 3}
@@ -1004,7 +1006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &1134311040258788548 stripped
+--- !u!4 &4011233525379790608 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -1159,7 +1161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &8412902578961034579 stripped
+--- !u!4 &5537035074710214279 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -1234,7 +1236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &8445268672707491110 stripped
+--- !u!4 &5558776055558131442 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}
@@ -1309,7 +1311,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec771fc79c748e4694b82068b3883e1, type: 3}
---- !u!4 &6303725415148466411 stripped
+--- !u!4 &8028922664314538815 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041736857787808937, guid: 0ec771fc79c748e4694b82068b3883e1,
     type: 3}

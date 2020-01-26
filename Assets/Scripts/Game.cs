@@ -82,27 +82,6 @@ public class Game : MonoBehaviour
         else
         {
             Destroy(mCharacter);
-            List<EnvironmentTile> used = new List<EnvironmentTile>();
-            foreach(Character player in PlayerBase.M.Players)
-            {
-                EnvironmentTile temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count)];
-
-                if (!used.Contains(temp))
-                    used.Add(temp);
-                else
-                {
-                    while(used.Contains(temp))
-                    {
-                        temp = Environment.M.StartPos[Random.Range(0, Environment.M.StartPos.Count)];
-                    }
-
-                    used.Add(temp);
-                }
-
-                player.transform.position = temp.Position;
-                player.transform.rotation = Quaternion.identity;
-                player.CurrentPosition = temp;
-            }
         }
 
         UI.M.ToggleMenu(show);
@@ -117,7 +96,36 @@ public class Game : MonoBehaviour
             PlayerBase.M.Players.Add(Instantiate(Character, CharacterStart));
         }
 
+        StartCoroutine(SpawnPlayers());
+
         GameStart();
+    }
+
+    IEnumerator SpawnPlayers()
+    {
+        yield return new WaitForEndOfFrame();
+
+        List<EnvironmentTile> used = new List<EnvironmentTile>();
+        foreach (Character player in PlayerBase.M.Players)
+        {
+            EnvironmentTile temp = PlayerBase.M.Main.SpawnPoints[Random.Range(0, PlayerBase.M.Main.SpawnPoints.Count)];
+
+            if (!used.Contains(temp))
+                used.Add(temp);
+            else
+            {
+                while (used.Contains(temp))
+                {
+                    temp = PlayerBase.M.Main.SpawnPoints[Random.Range(0, PlayerBase.M.Main.SpawnPoints.Count)];
+                }
+
+                used.Add(temp);
+            }
+
+            player.transform.position = temp.Position;
+            player.transform.rotation = Quaternion.identity;
+            player.CurrentPosition = temp;
+        }
     }
 
     void LocationLootTableCSV()
@@ -153,7 +161,6 @@ public class Game : MonoBehaviour
     {
         float roundTime = (roundStartTime + RoundLength) - Time.time;
         DayNightCycle(roundTime);
-
 
         if (roundTime <= 0)
         {
@@ -200,7 +207,7 @@ public class Game : MonoBehaviour
 
     void DayNightCycle(float time)
     {
-       
+        Sun.transform.rotation = Quaternion.Euler(new Vector3(time, -30, 0));
     }
 
     void SpawnZombies()
@@ -213,7 +220,7 @@ public class Game : MonoBehaviour
 
     void EndRound()
     {
-        Debug.Log("Round Over");
+        UI.M.Tooltip("Wave" + WaveCount + " Cleared");
         roundStarted = false;
         ZombiesSpawned = false;
 
@@ -237,6 +244,11 @@ public class Game : MonoBehaviour
             {
                 l.GetComponent<Location>().raided = false;
             }
+        }
+
+        if(PlayerBase.M.Built[0])
+        {
+            PlayerBase.M.AddItem("Food", 100);
         }
     }
 
