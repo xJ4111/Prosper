@@ -19,6 +19,7 @@ public class Location : Building
     [SerializeField] private TextMeshProUGUI TimerText;
     [SerializeField] private Image TimerBar;
     private bool raiding;
+    [HideInInspector] public bool raided;
     private float startTime;
 
     private void Start()
@@ -122,6 +123,7 @@ public class Location : Building
 
             ExitBuilding();
             raiding = false;
+            raided = true;
             PlayerBase.M.RaidOngoing = false;
             startTime = 0;
         }

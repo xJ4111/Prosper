@@ -24,7 +24,7 @@ public class Zombie : Character
 
     void ZombieAttack()
     {
-        if(!TargetPlayer && !TargetBuilding)
+        if(!TargetBuilding)
         {
             Hunt();
         }
@@ -32,15 +32,7 @@ public class Zombie : Character
         if(!Attacking && InRange())
         {
             Attacking = true;
-
-            if(PlayerBase.M.RTBCalled)
-            {
-                StartCoroutine(AttackBuilding());
-            }
-            else
-            {
-                StartCoroutine(AttackPlayer());
-            }
+            StartCoroutine(AttackBuilding());
         }
     }
 
@@ -56,41 +48,7 @@ public class Zombie : Character
     #region Target Finding
     void Hunt()
     {
-        if (PlayerBase.M.RTBCalled)
-        {
-            GoTo(ClosestBuilding());
-        }
-        else
-        {
-            TargetPlayer = ClosestPlayer();
-            if(TargetPlayer)
-            {
-                List<EnvironmentTile> Route = Environment.M.Solve(CurrentPosition, TargetPlayer.CurrentPosition);
-                Route.RemoveAt(Route.Count - 1);
-                GoTo(Route);
-            }
-
-        }
-    }
-
-    Character ClosestPlayer()
-    {
-        float dist = float.MaxValue;
-        Character closest = null;
-
-        foreach (Character player in PlayerBase.M.Players)
-        {
-            if (!player.Garrisoned)
-            {
-                if (Vector3.Distance(transform.position, player.transform.position) < dist)
-                {
-                    closest = player;
-                    dist = Vector3.Distance(transform.position, player.transform.position);
-                }
-            }
-        }
-
-        return closest;
+        GoTo(ClosestBuilding());
     }
 
     EnvironmentTile ClosestBuilding()
@@ -116,9 +74,6 @@ public class Zombie : Character
 
     bool InRange()
     {
-        if (TargetPlayer)
-            return Vector3.Distance(transform.position, TargetPlayer.transform.position) < AttackRange;
-
         if (TargetBuilding)
             return Vector3.Distance(transform.position, ClosestBuilding().transform.position) < AttackRange;
 
@@ -127,33 +82,6 @@ public class Zombie : Character
     #endregion
 
     #region Combat
-    public IEnumerator AttackPlayer()
-    {
-        yield return new WaitForSeconds(1.0f / AttackSpeed);
-
-        if (TargetPlayer)
-        {
-            FaceTarget(TargetPlayer.transform.position);
-
-            if (TargetPlayer.Health - Damage > 0)
-            {
-                TargetPlayer.Health -= (int)Damage;
-                StartCoroutine(AttackPlayer());
-            }
-            else
-            {
-                TargetPlayer.Health -= (int)Damage;
-                Attacking = false;
-                TargetPlayer = null;
-            }
-        }
-        else
-        {
-            Attacking = false;
-            TargetPlayer = null;
-        }
-    }
-
     public IEnumerator AttackBuilding()
     {
         yield return new WaitForSeconds(1.0f / AttackSpeed);

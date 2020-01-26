@@ -195,6 +195,8 @@ MonoBehaviour:
   DoorFront: {fileID: 8368059884739581678}
   DoorTile: {fileID: 0}
   SpawnPoints: []
+  DefendPointsParent: {fileID: 0}
+  DefendPoints: []
   Name: Gas Station
   Guarded: 0
   EnemyLevel: 0
@@ -279,7 +281,7 @@ PrefabInstance:
     - target: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5.49
       objectReference: {fileID: 0}
     - target: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
         type: 3}
@@ -329,7 +331,7 @@ PrefabInstance:
     - target: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 50
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 1695485953287531491, guid: f21a49471ded9b34e94ea77cad84cb03,
         type: 3}

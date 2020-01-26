@@ -12,7 +12,7 @@ public class Environment : MonoBehaviour
     [SerializeField] private List<EnvironmentTile> ResourceTiles;
     [SerializeField] private List<Building> BuildingTiles;
 
-    [SerializeField] private List<Building> AllBuildings = new List<Building>();
+    public List<Building> AllBuildings = new List<Building>();
 
     [Header("World Generation Parameters")]
     [SerializeField] private Vector2Int Size;
@@ -58,8 +58,8 @@ public class Environment : MonoBehaviour
 
         if (AutoParam)
         {
-            BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 4;
-            PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 4;
+            BiomeSize = ((Size.x / 10) + (Size.y / 10)) / 2;
+            PerBiomeCount = ((Size.x / 10) + (Size.y / 10)) / 2;
         }
     }
 

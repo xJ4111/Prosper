@@ -146,6 +146,7 @@ public class Game : MonoBehaviour
     {
         Sun.intensity = 1;
         Play = true;
+        roundStartTime = Time.time;
     }
 
     void GameLoop()
@@ -215,17 +216,28 @@ public class Game : MonoBehaviour
         Debug.Log("Round Over");
         roundStarted = false;
         ZombiesSpawned = false;
+
+        PlayerBase.M.Repair();
     }
 
     void NightOver()
     {
         NightCount++;
+        PlayerBase.M.Deploy();
 
         roundStartTime = Time.time;
         CurrentWave = 0;
 
         foreach (Character p in PlayerBase.M.Players)
             p.Busy = false;
+
+        foreach(Building l in Environment.M.AllBuildings)
+        {
+            if(l.GetComponent<Location>())
+            {
+                l.GetComponent<Location>().raided = false;
+            }
+        }
     }
 
     #endregion

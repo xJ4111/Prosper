@@ -19,12 +19,20 @@ public class PlayerBase : MonoBehaviour
 
     [Header("Base Info")]
     public Building Main;
-    public int buildingCount;
     private HealthBar HB;
+
+    [Header("Building Info")]
+    public int buildingCount;
+    public bool[] Built = { false, false, false };
+    public float BaseCost = 250;
+    public float PerBuildingCost = 100;
+    public float BaseHealth = 1000;
+    public float PerBuildingHealth = 250;
 
     [Header("Player Info")]
     public List<Character> Players;
-    public Dictionary<string, int> Inventory;
+    public Dictionary<string, int> Inventory = new Dictionary<string, int>();
+    public Dictionary<string, int> ResearchCosts = new Dictionary<string, int>();
     public int StorageCapacity;
     public int CombatLevel = 1;
     public int ToolLevel;
@@ -60,24 +68,42 @@ public class PlayerBase : MonoBehaviour
 
     void Start()
     {
-        Inventory = new Dictionary<string, int>();
         StorageCapacity = 1000;
-        AddItem("Metal", 475);
-        AddItem("Scrap", 363);
-        AddItem("Food", 576);
         Main = GetComponent<Building>();
+        Main.Health = BaseHealth;
         HB = GetComponentInChildren<HealthBar>();
         RTBCalled = false;
 
         UI.M.ButtonSetup();
         LoadCombatStatsCSV();
+        LoadResearchCosts();
+
+        AddItem("Metal", 1000);
+        AddItem("Scrap", 1000);
+        AddItem("Food", 1000);
+
+        /*
+        AddItem("Wooden Armour", 1);
+        AddItem("Crossbow", 1);
+        AddItem("Leather Armour", 1);
+        AddItem("M1911", 1);
+        AddItem("Kevlar Armour", 1);
+        AddItem("MP5", 1);
+        AddItem("Metal Plate Armour", 1);
+        AddItem("M4A1", 1);
+        */
+
+        for(int i = 0; i < Players.Count; i++)
+        {
+            Players[i].name = "Player " + (i + 1);
+        }
     }
 
     private void OnMouseOver()
     {
         if(Input.GetMouseButtonUp(0))
         {
-            if(!Game.M.ZombiesSpawned)
+            if(!UI.M.BaseUIPanel.activeSelf && !Game.M.ZombiesSpawned)
             {
                 UI.M.ToggleBaseUI(true);
             }
@@ -98,66 +124,19 @@ public class PlayerBase : MonoBehaviour
     {
         UI.M.ToggleBaseUI(false);
 
-        /*
-        if (WindowFloor && !rtbcalled)
-            RTB();
-        else
-        */
-
-        if (RTBCalled)
+        foreach (Character player in Players)
         {
-            foreach (Character player in Players)
+            player.TargetBuilding = Main;
+
+            if (player.Busy)
             {
-                player.StopAllCoroutines();
+                player.PriorityTarget = Main.DoorTile;
             }
-
-            Deploy();
-        }
-        else
-        {
-
-            List<EnvironmentTile> used = new List<EnvironmentTile>();
-
-            foreach (Character player in Players)
+            else
             {
-                player.TargetBuilding = null;
-
-                if (!Main.SpawnPoints.Contains(player.CurrentPosition))
-                {
-                    EnvironmentTile temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
-
-                    while (Taken(temp))
-                    {
-                        temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
-                    }
-
-                    if (player.Busy)
-                    {
-                        player.PriorityTarget = temp;
-                    }
-                    else
-                    {
-                        player.GoTo(temp);
-                        player.Busy = true;
-                    }
-                }
+                player.GoTo(Main.DoorTile);
             }
         }
-    }
-
-    bool Taken(EnvironmentTile spawn)
-    {
-        bool taken = false;
-
-        foreach (Character p in Players)
-        {
-            if (p.CurrentTarget != null && p.CurrentTarget == spawn)
-                taken = true;
-            else if (p.CurrentPosition == spawn)
-                taken = true;
-        }
-
-        return taken;
     }
 
     public void RTB()
@@ -169,7 +148,6 @@ public class PlayerBase : MonoBehaviour
             foreach (Character player in Players)
             {
                 player.TargetBuilding = Main;
-                player.Garrisoned = true;
 
                 if (!player.Busy)
                     player.GoTo(Main.DoorTile);
@@ -191,55 +169,40 @@ public class PlayerBase : MonoBehaviour
 
         CheckHeal(out need, out can, out cost);
 
-        foreach (Character player in Players)
+        if(need && can)
         {
-            player.Health = Stat("hp");
-        }
+            foreach (Character player in Players)
+            {
+                player.Health = Stat("hp");
+            }
 
-        Inventory["Food"] -= cost;
+            Inventory["Food"] -= cost;
+        }
     }
     public void Repair()
     {
-        Main.Health = MaxHealth();
-        Inventory["Metal"] -= RepairCost();
+        if(Main.Health != MaxHealth() && Inventory["Metal"] - RepairCost() >= 0)
+        {
+            Inventory["Metal"] -= RepairCost();
+            Main.Health = MaxHealth();
+        }
     }
-    public void AddBuilding()
+    public void BuildFarm()
     {
-        Debug.Log("Building Added");
+        Debug.Log("Farm Built");
     }
-
-    public void Research()
+    public void BuildWorkshop()
     {
-        Debug.Log("Research");
+        Debug.Log("Workshop Built");
+    }
+    public void BuildRadioStation()
+    {
+        Debug.Log("Radio Station Built");
     }
 
     public void Deploy()
     {
-        List<EnvironmentTile> used = new List<EnvironmentTile>();
-
-        foreach (Character player in Players)
-        {
-            player.TargetBuilding = null;
-
-            EnvironmentTile temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
-
-            if (!used.Contains(temp))
-                used.Add(temp);
-            else
-            {
-                while (used.Contains(temp))
-                {
-                    temp = Main.SpawnPoints[Random.Range(0, Main.SpawnPoints.Count)];
-                }
-
-                used.Add(temp);
-            }
-
-            player.CurrentPosition = temp;
-            player.transform.position = temp.Position;
-            player.Garrisoned = false;
-        }
-
+        Main.ExitBuilding();
         UI.M.ToggleBaseUI(false);
         RTBCalled = false;
     }
@@ -249,23 +212,13 @@ public class PlayerBase : MonoBehaviour
     #region Base Info
     public int RepairCost()
     {
-        int cost = 250 + (100 * buildingCount);
-        int maxHealth = 1000 + (500 * buildingCount);
-
-        return (int)(cost * (Main.Health / maxHealth));
+        int cost = (int)(BaseCost + (PerBuildingCost * buildingCount));
+        return (int)(cost * (Main.Health / MaxHealth()));
     }
 
     public int MaxHealth()
     {
-        return 1000 + (500 * buildingCount);
-    }
-
-    int Query(string type)
-    {
-        if (Inventory.ContainsKey(type))
-            return Inventory[type];
-        else
-            return 0;
+        return (int)(BaseHealth + (PerBuildingHealth * buildingCount));
     }
 
     public void CheckHeal(out bool NeedHeal, out bool CanHeal, out int HealCost)
@@ -332,6 +285,33 @@ public class PlayerBase : MonoBehaviour
     {
         Debug.Log("No Player Available");
     }
+
+    public void EnterBase(Character player)
+    {
+        Vector3 temp = Main.DefendPoints[Random.Range(0, Main.DefendPoints.Length)].position;
+
+        while(Taken(temp))
+        {
+            temp = Main.DefendPoints[Random.Range(0, Main.DefendPoints.Length)].position;
+        }
+
+        player.transform.position = temp;
+        player.Garrisoned = true;
+    }
+
+    bool Taken(Vector3 spawn)
+    {
+        bool taken = false;
+
+        foreach (Character p in Players)
+        {
+            if (Vector3.Distance(p.transform.position, spawn) < 0.005)
+                taken = true;
+        }
+
+        return taken;
+    }
+
     #endregion
 
     #region Inventory
@@ -341,8 +321,6 @@ public class PlayerBase : MonoBehaviour
             Inventory[item] += Count;
         else
             Inventory.Add(item, Count);
-
-        Debug.Log("Added " + Count + " " + item);
     }
 
     public void RemoveItem(string item, int Count)
@@ -355,6 +333,55 @@ public class PlayerBase : MonoBehaviour
                 Inventory.Remove(item);
         }
     }
+
+    public int Query(string type)
+    {
+        if (Inventory.ContainsKey(type))
+            return Inventory[type];
+        else
+            return 0;
+    }
+
+    void LoadResearchCosts()
+    {
+        TextAsset data = Resources.Load<TextAsset>("researchcosts");
+
+        string[] lines = data.text.Split('\n');
+
+        for (int i = 1; i < lines.Length - 1; i++)
+        {
+            string[] cell = lines[i].Split(',');
+            ResearchCosts.Add(cell[0], int.Parse(cell[1]));
+        }
+
+        foreach(KeyValuePair<string, int> costs in ResearchCosts)
+        {
+            Debug.Log(costs.Key + " " + costs.Value);
+        }
+    }
+
+    public bool CheckResearch(string item)
+    {
+        if(Query(item) != 0)
+        {
+            if(Query("Scrap") > ResearchCosts[item])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void Research(string item)
+    {
+        Inventory["Scrap"] -= ResearchCosts[item];
+        RemoveItem(item, 1);
+        AddItem(item + " BP", 1);
+
+        UpdateCombatLevel();
+    }
+
     #endregion
 
     #region Combat Info
@@ -391,6 +418,39 @@ public class PlayerBase : MonoBehaviour
 
         Debug.LogError("Stat not found");
         return 0;
+    }
+
+    void UpdateCombatLevel()
+    {
+        int oldLevel = CombatLevel;
+
+        if(Query("Crossbow BP") > 0 && Query("Wooden Armour BP") > 0)
+        {
+            CombatLevel = 2;
+        }
+
+        if (Query("M1911 BP") > 0 && Query("Leather Armour BP") > 0)
+        {
+            CombatLevel = 3;
+        }
+
+        if (Query("MP5 BP") > 0 && Query("Kevlar Armour BP") > 0)
+        {
+            CombatLevel = 4;
+        }
+
+        if (Query("M4A1 BP") > 0 && Query("Metal Plate Armour BP") > 0)
+        {
+            CombatLevel = 5;
+        }
+
+        if(oldLevel != CombatLevel)
+        {
+            foreach(Character player in Players)
+            {
+                player.Health = Max[CombatLevel].Health;
+            }
+        }
     }
 
     #endregion

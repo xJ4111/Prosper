@@ -15,11 +15,19 @@ public class Building : MonoBehaviour
     public EnvironmentTile DoorTile;
     public List<EnvironmentTile> SpawnPoints = new List<EnvironmentTile>();
 
+    public GameObject DefendPointsParent;
+    [HideInInspector] public Transform[] DefendPoints;
+
     // Start is called before the first frame update
     void Start()
     {
         Centre = GetComponent<EnvironmentTile>();
         DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
+
+        if (DefendPointsParent)
+        {
+            DefendPoints = DefendPointsParent.GetComponentsInChildren<Transform>();
+        }
     }
 
     public void ExitBuilding()
@@ -48,6 +56,7 @@ public class Building : MonoBehaviour
             player.transform.position = temp.Position;
             player.TargetBuilding = null;
             player.Busy = false;
+            player.Garrisoned = false;
         }
     }
 }

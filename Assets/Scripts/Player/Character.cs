@@ -19,6 +19,7 @@ public class Character : MonoBehaviour
     public bool Searching;
     public bool Attacking;
     public Character AttackTarget;
+    public bool resetting;
 
     [Header("Interaction")]
     public bool Busy;
@@ -66,18 +67,20 @@ public class Character : MonoBehaviour
     {
         if(Zombies.M.AllZombies.Count > 0)
         {
+
             if (!AttackTarget && !Searching)
             {
                 StartCoroutine(NewTarget());
             }
-
-            if (!Attacking && InRange())
+            else if(!AttackTarget && Searching && !resetting)
             {
-                if (AttackTarget)
-                {
-                    Attacking = true;
-                    StartCoroutine(Attack());
-                }
+                StartCoroutine(ResetSearch());
+            }
+
+            if (AttackTarget && !Attacking && InRange())
+            {
+                Attacking = true;
+                StartCoroutine(Attack());
             }
         }
     }
@@ -85,9 +88,23 @@ public class Character : MonoBehaviour
     IEnumerator NewTarget()
     {
         Searching = true;
+        Attacking = false;
         yield return new WaitForSeconds(SnapTime);
-        AttackTarget = ClosestZombie();
+
+        while(Zombies.M.AllZombies.Count > 0 && AttackTarget == null)
+        {
+            AttackTarget = ClosestZombie();
+        }
+ 
         Searching = false;
+    }
+
+    IEnumerator ResetSearch()
+    {
+        resetting = true;
+        yield return new WaitForSeconds(SnapTime);
+        Searching = false;
+        resetting = false;
     }
 
     public IEnumerator Attack()
@@ -173,9 +190,14 @@ public class Character : MonoBehaviour
     {
         if (TargetBuilding)
         {
-            if (CurrentPosition == TargetBuilding.DoorTile)
+            if (CurrentPosition == TargetBuilding.DoorTile && !Garrisoned)
             {
-                transform.position = TargetBuilding.Centre.transform.position;
+                StopAllCoroutines();
+
+                if(TargetBuilding != PlayerBase.M.Main)
+                    transform.position = TargetBuilding.Centre.transform.position;
+                else
+                    PlayerBase.M.EnterBase(this);
             }
         }
     }
@@ -201,7 +223,7 @@ public class Character : MonoBehaviour
     {
         if (PriorityTarget && !TargetBuilding)
         {
-            if (!Busy)
+            if (!Busy && !Garrisoned)
             {
                 GoTo(PriorityTarget);
                 PriorityTarget = null;
