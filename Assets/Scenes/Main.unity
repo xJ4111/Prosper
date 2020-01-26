@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da2bb81f006f1c4184e1c25dfb225d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Resource: Wood
+  Resource: Food
 --- !u!222 &143482046
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1202,7 +1202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da2bb81f006f1c4184e1c25dfb225d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Resource: Stone
+  Resource: Scrap
 --- !u!222 &410585087
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3195,14 +3195,15 @@ MonoBehaviour:
     type: 3}
   CharacterCount: 5
   CharacterStart: {fileID: 561634765}
+  SecondToGametimeRatio: 15
   WaveCount: 5
   ZombieMultiplier: 2.5
-  Play: 0
   Sun: {fileID: 705507994}
+  Play: 0
   NightCount: 0
   RoundCount: 0
   CurrentWave: 0
-  RoundLength: 2
+  RoundLength: 180
   ZombiesSpawned: 0
 --- !u!4 &896303072
 Transform:
@@ -3679,7 +3680,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c6aa9089c5397fc49baf5694c039385e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e23658b853cbc4644afce42719cbcdb4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5430,7 +5431,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6117647, g: 0.39607847, b: 0.2901961, a: 1}
+  m_Color: {r: 0.8705883, g: 0.45098042, b: 0.41960788, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6083,7 +6084,7 @@ MonoBehaviour:
   - {fileID: 4624508870745565075, guid: 3b98c85889a03c84981bc2cb875e22e5, type: 3}
   - {fileID: 4624508870745565075, guid: d375aa949ec231c4ab196d17ebca77e7, type: 3}
   AllBuildings: []
-  Size: {x: 20, y: 20}
+  Size: {x: 100, y: 100}
   AccessiblePercentage: 1
   AutoParam: 1
   BiomeSize: 5

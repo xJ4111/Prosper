@@ -19,8 +19,7 @@ public class PlayerBase : MonoBehaviour
 
     [Header("Base Info")]
     public Building Main;
-    public int UpgradeLevel;
-    private int buildingCount;
+    public int buildingCount;
     private HealthBar HB;
 
     [Header("Player Info")]
@@ -46,22 +45,26 @@ public class PlayerBase : MonoBehaviour
         public float AttackRange;
         public float AttackSpeed;
         public float HeadshotChance;
+        public float SnapTime;
 
-        public Stats(float hp, float dmg, float ar, float ats, float hc)
+        public Stats(float hp, float dmg, float ar, float ats, float hc, float st)
         {
             Health = hp;
             Damage = dmg;
             AttackRange = ar;
             AttackSpeed = ats;
             HeadshotChance = hc;
+            SnapTime = st;
         }
     }
 
     void Start()
     {
         Inventory = new Dictionary<string, int>();
-        StorageCapacity = 5000;
-        AddItem("Rock", 1);
+        StorageCapacity = 1000;
+        AddItem("Metal", 475);
+        AddItem("Scrap", 363);
+        AddItem("Food", 576);
         Main = GetComponent<Building>();
         HB = GetComponentInChildren<HealthBar>();
         RTBCalled = false;
@@ -87,64 +90,8 @@ public class PlayerBase : MonoBehaviour
 
     private void Update()
     {
-        HB.UpdateBar(Main.Health, 1000);
+        HB.UpdateBar(Main.Health, MaxHealth());
     }
-
-    #region Base Info
-    public KeyValuePair<string, int> UpgradeInfo(out float CurrentAmount, out bool CanUpgrade)
-    {
-        //Base cost + 1k per building
-        int cost = 2500 + (1000 * buildingCount);
-
-        CanUpgrade = false;
-        CurrentAmount = 0;
-
-        switch (UpgradeLevel)
-        {
-            case 0:
-                CanUpgrade = Query("Stone") - cost >= 0;
-                CurrentAmount = Query("Stone");
-                return new KeyValuePair<string, int>("Stone", cost);
-            case 1:
-                CanUpgrade = Query("Metal") - cost >= 0;
-                CurrentAmount = Query("Metal");
-                return new KeyValuePair<string, int>("Metal", cost);
-        }
-
-        return new KeyValuePair<string, int>("", 0);
-    }
-
-    int Query(string type)
-    {
-        if (Inventory.ContainsKey(type))
-            return Inventory[type];
-        else
-            return 0;
-    }
-
-    public void CheckHeal(out bool NeedHeal, out bool CanHeal, out int HealCost)
-    {
-        NeedHeal = false;
-        int hurtCount = 0;
-
-        foreach (Character player in Players)
-        {
-            if (player.Health < 100)
-            {
-                NeedHeal = true;
-                hurtCount++;
-            }
-        }
-
-        HealCost = hurtCount * 10;
-
-        if (Query("Food") - HealCost > 0)
-            CanHeal = true;
-        else
-            CanHeal = false;
-    }
-
-    #endregion
 
     #region Base Actions
     public void Defend()
@@ -157,9 +104,9 @@ public class PlayerBase : MonoBehaviour
         else
         */
 
-        if(RTBCalled)
+        if (RTBCalled)
         {
-            foreach(Character player in Players)
+            foreach (Character player in Players)
             {
                 player.StopAllCoroutines();
             }
@@ -202,7 +149,7 @@ public class PlayerBase : MonoBehaviour
     {
         bool taken = false;
 
-        foreach(Character p in Players)
+        foreach (Character p in Players)
         {
             if (p.CurrentTarget != null && p.CurrentTarget == spawn)
                 taken = true;
@@ -215,7 +162,7 @@ public class PlayerBase : MonoBehaviour
 
     public void RTB()
     {
-        if(!RaidOngoing)
+        if (!RaidOngoing)
         {
             RTBCalled = true;
 
@@ -237,19 +184,33 @@ public class PlayerBase : MonoBehaviour
 
         UI.M.ToggleBaseUI(false);
     }
-
-
     public void Heal()
     {
+        bool need = false, can = false;
+        int cost;
+
+        CheckHeal(out need, out can, out cost);
+
         foreach (Character player in Players)
         {
-            player.Health = 100;
+            player.Health = Stat("hp");
         }
+
+        Inventory["Food"] -= cost;
+    }
+    public void Repair()
+    {
+        Main.Health = MaxHealth();
+        Inventory["Metal"] -= RepairCost();
+    }
+    public void AddBuilding()
+    {
+        Debug.Log("Building Added");
     }
 
-    public void Upgrade()
+    public void Research()
     {
-        Debug.Log("Upgraded");
+        Debug.Log("Research");
     }
 
     public void Deploy()
@@ -281,6 +242,52 @@ public class PlayerBase : MonoBehaviour
 
         UI.M.ToggleBaseUI(false);
         RTBCalled = false;
+    }
+
+    #endregion
+
+    #region Base Info
+    public int RepairCost()
+    {
+        int cost = 250 + (100 * buildingCount);
+        int maxHealth = 1000 + (500 * buildingCount);
+
+        return (int)(cost * (Main.Health / maxHealth));
+    }
+
+    public int MaxHealth()
+    {
+        return 1000 + (500 * buildingCount);
+    }
+
+    int Query(string type)
+    {
+        if (Inventory.ContainsKey(type))
+            return Inventory[type];
+        else
+            return 0;
+    }
+
+    public void CheckHeal(out bool NeedHeal, out bool CanHeal, out int HealCost)
+    {
+        NeedHeal = false;
+        int hurtCount = 0;
+
+        foreach (Character player in Players)
+        {
+            if (player.Health < Stat("hp"))
+            {
+                NeedHeal = true;
+                hurtCount++;
+            }
+        }
+
+        HealCost = hurtCount * 10;
+
+        if (Query("Food") - HealCost > 0)
+            CanHeal = true;
+        else
+            CanHeal = false;
     }
 
     #endregion
@@ -334,6 +341,8 @@ public class PlayerBase : MonoBehaviour
             Inventory[item] += Count;
         else
             Inventory.Add(item, Count);
+
+        Debug.Log("Added " + Count + " " + item);
     }
 
     public void RemoveItem(string item, int Count)
@@ -349,7 +358,6 @@ public class PlayerBase : MonoBehaviour
     #endregion
 
     #region Combat Info
-
     void LoadCombatStatsCSV()
     {
         TextAsset data = Resources.Load<TextAsset>("combatstats");
@@ -359,8 +367,30 @@ public class PlayerBase : MonoBehaviour
         for (int i = 1; i < lines.Length - 1; i++)
         {
             string[] cell = lines[i].Split(',');
-            Max.Add(int.Parse(cell[0]), new Stats(float.Parse(cell[1]), float.Parse(cell[2]), float.Parse(cell[3]), float.Parse(cell[4]), float.Parse(cell[5])));
+            Max.Add(int.Parse(cell[0]), new Stats(float.Parse(cell[1]), float.Parse(cell[2]), float.Parse(cell[3]), float.Parse(cell[4]), float.Parse(cell[5]), float.Parse(cell[6])));
         }
+    }
+
+    public float Stat(string stat)
+    {
+        switch (stat)
+        {
+            case "hp":
+                return Max[CombatLevel].Health;
+            case "dmg":
+                return Max[CombatLevel].Damage;
+            case "ar":
+                return Max[CombatLevel].AttackRange;
+            case "as":
+                return Max[CombatLevel].AttackSpeed;
+            case "hc":
+                return Max[CombatLevel].HeadshotChance;
+            case "st":
+                return Max[CombatLevel].SnapTime;
+        }
+
+        Debug.LogError("Stat not found");
+        return 0;
     }
 
     #endregion

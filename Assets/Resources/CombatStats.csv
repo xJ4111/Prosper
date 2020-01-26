@@ -1,6 +1,6 @@
-Combat Level,Health,Damage,Attack Range,Attack Speed,Headshot Chance,Gear Description
-1,100,50,15,1,0,Melee Weapons | No Armor
-2,125,75,30,1,50,Primitive Ranged Weapons | Basic Armour
-3,175,125,45,2,60,Teir 1 Guns | Teir 1 Armour
-4,210,145,45,3.3,65,Teir 2 Guns | Teir 2 Armour
-5,275,200,60,5,80,Teir 3 Guns | Teir 3 Armour
+Combat Level,Health,Damage,Attack Range,Attack Speed,Headshot Chance,Snap Time,Gear Description
+1,100,50,15,1,90,0.3,Melee Weapons | No Armor
+2,125,75,30,1,50,1,Primitive Ranged Weapons | Basic Armour
+3,175,125,45,2,60,0.6,Teir 1 Guns | Teir 1 Armour
+4,210,145,45,3.3,65,0.45,Teir 2 Guns | Teir 2 Armour
+5,275,200,60,5,80,0.2,Teir 3 Guns | Teir 3 Armour

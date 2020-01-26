@@ -45,7 +45,7 @@ public class Character : MonoBehaviour
         TargetReachedCheck();
         FinishThenMove();
         EnterBuilding();
-        HB.UpdateBar(Health, PlayerBase.M.Max[PlayerBase.M.CombatLevel].Health);
+        HB.UpdateBar(Health, PlayerBase.M.Stat("hp"));
         Die();
 
         Combat();
@@ -54,11 +54,12 @@ public class Character : MonoBehaviour
     #region Combat
     void UpdateStats()
     {
-        Health = PlayerBase.M.Max[PlayerBase.M.CombatLevel].Health;
-        Damage = PlayerBase.M.Max[PlayerBase.M.CombatLevel].Damage;
-        AttackRange = PlayerBase.M.Max[PlayerBase.M.CombatLevel].AttackRange;
-        AttackSpeed = PlayerBase.M.Max[PlayerBase.M.CombatLevel].AttackSpeed;
-        HeadshotChance = PlayerBase.M.Max[PlayerBase.M.CombatLevel].HeadshotChance;
+        Health = PlayerBase.M.Stat("hp");
+        Damage = PlayerBase.M.Stat("dmg");
+        AttackRange = PlayerBase.M.Stat("ar");
+        AttackSpeed = PlayerBase.M.Stat("as");
+        HeadshotChance = PlayerBase.M.Stat("hc");
+        SnapTime = PlayerBase.M.Stat("st");
     }
 
     void Combat()

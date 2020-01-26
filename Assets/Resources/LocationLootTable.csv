@@ -1,0 +1,5 @@
+Location,Item|Count|DropChance,Item|Count|DropChance,Item|Count|DropChance,Item|Count|DropChance,Item|Count|DropChance
+Gas Station,Crossbow|1|55,LeatherArmour|1|55,Metal|1250|15,Scrap|125|85,Food|15|100
+Bandit Camp,M1911|1|55,WoodenArmour|1|55,Metal|2340|45,Scrap|234|85,Food|25|75
+Police Station,MP5|1|55,KevlarArmour|1|55,Metal|3760|65,Scrap|376|85,Food|35|60
+Embassy,M4A1|1|55,MetalPlateArmour|1|55,Metal|4500|75,Scrap|450|85,Food|60|40

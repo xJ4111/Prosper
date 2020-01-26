@@ -275,10 +275,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 0}
-  UpgradeLevel: 0
+  buildingCount: 0
   Players: []
   StorageCapacity: 0
-  CombatLevel: 3
+  CombatLevel: 1
   ToolLevel: 0
   RaidOngoing: 0
   Target: {fileID: 0}

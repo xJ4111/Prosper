@@ -74,8 +74,6 @@ public class UI : MonoBehaviour
     #region Round Info
     public void UpdateRoundInfo(float timeToRoundStart)
     {
-        
-
         if(timeToRoundStart >= 0)
         {
             RoundTitleText.text = "Day " + Game.M.NightCount;
@@ -131,9 +129,9 @@ public class UI : MonoBehaviour
         Button[] buttons = BaseUIPanel.GetComponentsInChildren<Button>();
 
         buttons[0].onClick.AddListener(() => PlayerBase.M.Heal());
-        buttons[1].onClick.AddListener(() => PlayerBase.M.Upgrade());
-        //buttons[2].onClick.AddListener(() => PlayerBase.M.AddBuilding());
-        //buttons[3].onClick.AddListener(PlayerBase.M.RemoveBuilding());
+        buttons[1].onClick.AddListener(() => PlayerBase.M.Repair());
+        buttons[2].onClick.AddListener(() => PlayerBase.M.AddBuilding());
+        buttons[3].onClick.AddListener(() => PlayerBase.M.Research());
         buttons[4].onClick.AddListener(() => PlayerBase.M.Deploy());
         buttons[5].onClick.AddListener(() => PlayerBase.M.RTB());
     }
@@ -141,7 +139,7 @@ public class UI : MonoBehaviour
     void BaseActionUpdate()
     {
         HealButton();
-        UpgradeButton();
+        Repair();
     }
 
     void HealButton()
@@ -152,7 +150,7 @@ public class UI : MonoBehaviour
 
         PlayerBase.M.CheckHeal(out NeedHeal, out CanHeal, out HealCost);
 
-        if (NeedHeal)
+        if (!NeedHeal)
         {
             buttons[0].enabled = false;
             texts[0].text = "All Players Healthy";
@@ -176,40 +174,35 @@ public class UI : MonoBehaviour
         }
     }
     
-    void UpgradeButton()
+    void Repair()
     {
-        if (PlayerBase.M.UpgradeLevel == 2)
+        if(PlayerBase.M.Main.Health == PlayerBase.M.MaxHealth())
         {
-            texts[1].text = "Base Fully Upgraded";
-            costs[1].text = "";
             buttons[1].enabled = false;
+            texts[1].text = "No Repairs Needed";
+            costs[1].text = "";
         }
         else
         {
-            float CurrentAmount;
-            bool CanUpgrade;
-            KeyValuePair<string, int> cost = PlayerBase.M.UpgradeInfo(out CurrentAmount, out CanUpgrade);
-
-            if(CanUpgrade)
-            {
-                buttons[1].enabled = true;
-                texts[1].text = "Upgrade";
-                costs[1].text = cost.Key + " x" + (cost.Value / 1000) + "K/";
-            }
-            else if(!CanUpgrade)
+            if (PlayerBase.M.Inventory["Metal"] - PlayerBase.M.RepairCost() < 0)
             {
                 buttons[1].enabled = false;
-                texts[1].text = "Upgrade";
-                costs[1].text = cost.Key + " " + (CurrentAmount / 1000) + "K/" + (cost.Value / 1000) + "K";
+                texts[1].text = "Can't Afford Repairs";
+                costs[1].text = "Need " + PlayerBase.M.RepairCost() + " Metal";
             }
-
+            else
+            {
+                buttons[1].enabled = true;
+                texts[1].text = "Repair Base";
+                costs[1].text = "Metal x" + PlayerBase.M.RepairCost().ToString();
+            }
         }
+
     }
 
     #endregion
 
     #region Raid UI
-
     public void ToggleRaidUI(Location target)
     {
         RaidUIPanel.SetActive(true);
@@ -233,11 +226,11 @@ public class UI : MonoBehaviour
         info += "Loot Type: " + target.LootType + "\n";
 
         if (target.Guarded)
-            info += "Guarded by Level " + target.EnemyLevel + " Enemies. " + PlayerBase.M.CombatLevel / target.EnemyLevel + " Success Chance \n";
+            info += "Guarded (Level " + target.EnemyLevel + " Enemies) " + target.SuccessChance() + "%" + " Success\n";
         else
-            info += "Location Unguarded. 100% Success Chance \n";
+            info += "Location Unguarded. 100% Success\n";
 
-        info += "Loot Time: " + target.LootTime + "\n";
+        info += "Loot Time: " + GameTime(target.LootTime, true) + "\n";
 
         return info;
     }
@@ -245,8 +238,8 @@ public class UI : MonoBehaviour
 
     public string GameTime(float time, bool full)
     {
-        int hours = (int)(time / 5);
-        float mins = 60 * ((time / 5) % 1);
+        int hours = (int)(time / Game.M.SecondToGametimeRatio);
+        float mins = 60 * ((time / Game.M.SecondToGametimeRatio) % 1);
 
         if(hours > 0)
         {

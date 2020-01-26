@@ -198,10 +198,8 @@ MonoBehaviour:
   Name: Gas Station
   Guarded: 0
   EnemyLevel: 0
-  LootType: Food & Tools
+  LootType: Low Teir Weapons, Scrap, Food
   LootTime: 30
-  item: Metal
-  count: 1000
   Timer: {fileID: 7251615201348473477}
   TimerText: {fileID: 287270898282862416}
   TimerBar: {fileID: 4276958252201435648}

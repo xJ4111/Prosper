@@ -12,8 +12,7 @@ public class Location : Building
     public int EnemyLevel = 0;
     public string LootType;
     public float LootTime;
-    [SerializeField] private string item;
-    [SerializeField] private int count;
+    [SerializeField] private List<Game.Item> loot;
 
     [Header("Raid Information")]
     [SerializeField] private Canvas Timer;
@@ -21,6 +20,12 @@ public class Location : Building
     [SerializeField] private Image TimerBar;
     private bool raiding;
     private float startTime;
+
+    private void Start()
+    {
+        loot = Game.M.LootTable[Name];
+        DoorTile = Environment.M.ClosestTile(DoorFront.transform.position);
+    }
 
     private void OnMouseOver()
     {
@@ -66,7 +71,6 @@ public class Location : Building
                     else
                     {
                         player.PriorityTarget = DoorTile;
-                        player.Busy = true;
                     }
                 }
             }
@@ -90,7 +94,7 @@ public class Location : Building
 
         float temp = (startTime + LootTime) - Time.time;
 
-        TimerText.text = temp.ToString("F0") + "s";
+        TimerText.text = UI.M.GameTime(temp, false);
         TimerBar.rectTransform.sizeDelta = new Vector2(Timer.GetComponent<RectTransform>().sizeDelta.x * (temp / LootTime), TimerBar.rectTransform.sizeDelta.y);
 
         if(temp <= 0)
@@ -99,16 +103,16 @@ public class Location : Building
             
             if(Guarded)
             {
-                if (Random.Range(0, 100) < (PlayerBase.M.CombatLevel / EnemyLevel) * 100)
+                if (Random.Range(0, 100) < SuccessChance())
                 {
                     Debug.Log("Raid Successful");
                     Loot();
-                    Damage(true);
+                    Damage();
                 }
                 else
                 {
                     Debug.Log("Raid Failed");
-                    Damage(false);
+                    Damage();
                 }
             }
             else
@@ -125,25 +129,39 @@ public class Location : Building
 
     void Loot()
     {
-        PlayerBase.M.AddItem(item, count);
+        foreach(Game.Item item in loot)
+        {
+            if(Random.Range(0,100) < item.DropChance)
+                PlayerBase.M.AddItem(item.Name, item.DropCount);
+        }
     }
 
-    void Damage(bool raidWon)
+    void Damage()
     {
-        if (raidWon)
+
+        foreach (Character player in PlayerBase.M.Players)
         {
-            foreach(Character player in PlayerBase.M.Players)
-            {
-                player.Health -= 25;
-            }
+            player.Health -= Random.Range((100 - SuccessChance()) - 10, (100 - SuccessChance()) + 10);
+        }
+    }
+
+    public float SuccessChance()
+    {
+        if (EnemyLevel == PlayerBase.M.CombatLevel)
+            return 75f;
+        else if(EnemyLevel > PlayerBase.M.CombatLevel)
+        {
+            if(EnemyLevel - PlayerBase.M.CombatLevel == 2)
+                return 25f;
+            if (EnemyLevel - PlayerBase.M.CombatLevel == 1)
+                return 50f;
         }
         else
         {
-            foreach (Character player in PlayerBase.M.Players)
-            {
-                player.Health -= 50;
-            }
+            return 100f;
         }
+
+        return 100f;
     }
 
 }

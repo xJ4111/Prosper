@@ -24,13 +24,32 @@ public class Game : MonoBehaviour
     [SerializeField] private Transform CharacterStart;
     private Character mCharacter;
 
+    public float SecondToGametimeRatio;
 
+    [Header("Location Loot")]
+    public Dictionary<string, List<Item>> LootTable = new Dictionary<string, List<Item>>();
+
+    public class Item
+    {
+        public string Name;
+        public int DropCount;
+        public int DropChance;
+
+        public Item(string name, int count, int chance)
+        {
+            Name = name;
+            DropCount = count;
+            DropChance = chance;
+        }
+    }
+
+    [Header("Zombie Wave Parameters")]
     public int WaveCount = 5;
     public float ZombieMultiplier = 2.5f;
 
     [Header("Game Loop")]
-    public bool Play;
     public Light Sun;
+    [HideInInspector] public bool Play;
     [HideInInspector] public int NightCount;
     [HideInInspector] public int RoundCount;
     [HideInInspector] public int CurrentWave;
@@ -44,6 +63,8 @@ public class Game : MonoBehaviour
         //ShowMenu(true);
         NightCount = 1;
         WaveCount = 5;
+
+        LocationLootTableCSV();
     }
 
     private void Update()
@@ -98,6 +119,25 @@ public class Game : MonoBehaviour
 
         GameStart();
     }
+
+    void LocationLootTableCSV()
+    {
+        TextAsset data = Resources.Load<TextAsset>("LocationLootTable");
+
+        string[] lines = data.text.Split('\n');
+
+        for (int i = 1; i < lines.Length - 1; i++)
+        {
+            string[] cell = lines[i].Split(',');
+            LootTable.Add(cell[0], new List<Item>());
+            for(int j = 1; j <= 5; j++)
+            {
+                string[] item = cell[j].Split('|');
+                LootTable[cell[0]].Add(new Item(item[0], int.Parse(item[1]), int.Parse(item[2])));
+            }
+        }
+    }
+
     #endregion
 
     #region Game Loop

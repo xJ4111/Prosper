@@ -70,7 +70,7 @@ public class Interactable : MonoBehaviour
     public string GetInfo()
     {
         Calculate();
-        return Type + " x" + (Amount * fraction) + "\n" + "Harvest Time: " + interactTime;
+        return Type + " x" + (Amount * fraction) + "\n" + "Harvest Time: " + UI.M.GameTime(interactTime, true);
     }
 
     void DisplayTimer()
@@ -119,6 +119,7 @@ public class Interactable : MonoBehaviour
         TargetingPlayer.Busy = true;
         startTime = Time.time;
         yield return new WaitForSeconds(interactTime);
+
         if (PlayerBase.M.Inventory.ContainsKey(Type) && PlayerBase.M.Inventory[Type] + Amount > PlayerBase.M.StorageCapacity)
             PlayerBase.M.Inventory[Type] = PlayerBase.M.StorageCapacity;
         else
